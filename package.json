@@ -1,6 +1,6 @@
 {
   "name": "npmlist",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Nicholas Hwang <nick.joosung.hwang@gmail.com>",
   "license": "MIT",
   "description": "Pretty npm list",
@@ -9,9 +9,9 @@
     "url": "git://github.com/geekjuice/npmlist.git"
   },
   "bugs": {
-    "url": "https://github.com/geekjuice/lemmings/issues"
+    "url": "https://github.com/geekjuice/npmlist/issues"
   },
-  "homepage": "https://github.com/geekjuice/lemmings",
+  "homepage": "https://github.com/geekjuice/npmlist",
   "bin": "./bin/npmlist",
   "dependencies": {},
   "devDependencies": {
