@@ -17,6 +17,7 @@
   "devDependencies": {
     "mocha": "*",
     "chai": "*",
+    "logtrap": "*",
     "coffee-script": "*",
     "gulp": "*",
     "gulp-clean": "*",

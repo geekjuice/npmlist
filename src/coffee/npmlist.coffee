@@ -14,34 +14,8 @@
 { join } = require 'path'
 
 
-# Help/Usage
-help = ->
-  console.log """
-
-  Usage: npmlist [flags]
-
-  Flags:
-    local, -l, --local        Local packages
-    help, -h, --help          This message
-    version, -v, --version    Version number
-
-              """
-  process.exit(1)
-
-
-# Version
-version = ->
-  pkgjson = join __dirname, '../../package.json'
-  readFile pkgjson, (err, file) ->
-    throw err if err
-    json = JSON.parse file
-    console.log "npmlist v" + json.version
-
-
-# Unknown Command
-unknownCommand = (flag) ->
-  console.log "\nUnknown flag: #{flag}"
-  help()
+# Global
+npmlist = {}
 
 
 # Output Colors
@@ -52,9 +26,43 @@ cyan ='\x1B[36m'
 grey = '\x1B[90m'
 reset = '\x1B[0m'
 
+# Test?
+isTest = global.NODE_ENV is 'test'
+
+# Help/Usage
+npmlist.help = ->
+  console.log """
+
+  Usage: npmlist [flags]
+
+  Flags:
+    local, -l, --local        Local packages
+    help, -h, --help          This message
+    version, -v, --version    Version number
+
+              """
+  process.exit(1) unless isTest
+
+
+# Version
+npmlist.version = (callback) ->
+  pkgjson = join __dirname, '../../package.json'
+  readFile pkgjson, (err, file) ->
+    throw err if err
+    json = JSON.parse file
+    version = "npmlist v" + json.version
+    console.log version unless isTest
+    callback version if callback
+
+
+# Unknown Command
+npmlist.unknownCommand = (flag) ->
+  console.log "\nUnknown flag: #{flag}"
+  npmlist.help()
+
 
 # Prettify package and version
-prettify = (pkg,version,spaces) ->
+npmlist.prettify = (pkg,version,spaces) ->
   p = [magenta,pkg,reset].join ''
   v = [cyan,'[',version,']',reset].join ''
   s = [grey,spaces,reset].join ''
@@ -62,24 +70,26 @@ prettify = (pkg,version,spaces) ->
 
 
 # Check if no packages
-isEmpty = (list) -> /^└\W+(empty)/.test list
+npmlist.isEmpty = (list) -> /^└\W+(empty)/.test list
 
 
 # Check if main package
-isMainPackage = (pkg) -> /^[├└].*/g.test pkg
+npmlist.isMainPackage = (pkg) -> /^[├└].*/g.test pkg
 
 
 # Write to stdout
-logger = (totalLength,line) ->
+npmlist.logger = (totalLength,line) ->
   regex = /^\W+([^ ]+)/
   result = line.match(regex)[1].split '@'
-  buffer = totalLength - result[0].length - result[1].length
+  resultLength = result[0].length + result[1].length
+  buffer = totalLength - resultLength
   result.push Array(buffer).join '.'
-  process.stdout.write prettify.apply null,result
+  process.stdout.write npmlist.prettify.apply null,result unless isTest
+  result.slice 0, 2
 
 
 # Main npm list function
-npmls = (global) ->
+npmlist.npmls = (global) ->
   cmd = 'npm ls'
   scope = '(local)'
   if global
@@ -91,27 +101,31 @@ npmls = (global) ->
     msg = ['\n',blue,msg,'\n\n'].join ''
     process.stdout.write msg
     list = stdout.split '\n'
-    if list.filter(isEmpty).length
+    if list.filter(npmlist.isEmpty).length
       empty = [magenta,'(empty)',reset,'\n'].join ''
       return process.stdout.write(empty)
-    result = list.filter isMainPackage
-    result.map logger.bind null,totalLength
+    result = list.filter npmlist.isMainPackage
+    result.map npmlist.logger.bind null,totalLength
 
 
 # Initialize
-init = ->
+npmlist.init = ->
 
   # Flag
   flag = process.argv[2]
 
   # Flag switch
   switch flag
-    when "help","-h","--help"             then help()
-    when "version","-v","--version"       then version()
-    when "local","-l","--local"           then npmls false
-    when undefined                        then npmls true
-    else unknownCommand flag
+    when "help","-h","--help"             then npmlist.help()
+    when "version","-v","--version"       then npmlist.version()
+    when "local","-l","--local"           then npmlist.npmls false
+    when undefined                        then npmlist.npmls true
+    else npmlist.unknownCommand flag
 
 
 # Export
-exports.call = init
+if isTest
+  module.exports = npmlist
+else
+  module.exports.call = npmlist.init
+
