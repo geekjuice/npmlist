@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+
+// Require
+var path  = require('path');
+
+// Call npmlist
+var npmlist = path.join(__dirname, '../src/js/npmlist')
+require(npmlist).call();
+

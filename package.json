@@ -1,0 +1,24 @@
+{
+  "name": "npmlist",
+  "version": "0.0.1",
+  "author": "Nicholas Hwang <nick.joosung.hwang@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/geekjuice/npmlist"
+  },
+  "bin": "./bin/npmlist",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "chai": "*",
+    "coffee-script": "*",
+    "gulp": "*",
+    "gulp-clean": "*",
+    "gulp-coffee": "*",
+    "gulp-plumber": "*"
+  },
+  "engines":{
+    "node": "*"
+  }
+}
