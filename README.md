@@ -49,6 +49,8 @@ Usage (sans color)
   mocha..................[1.17.1]
 ```
 
+## Future Plans
+* Allow for depth option like `npm list`
 
 ## Credits
 
