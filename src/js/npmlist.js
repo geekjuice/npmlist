@@ -67,7 +67,7 @@ isMainPackage = function(pkg) {
 
 logger = function(totalLength, line) {
   var buffer, regex, result;
-  regex = /^\W+(.+)/;
+  regex = /^\W+([^ ]+)/;
   result = line.match(regex)[1].split('@');
   buffer = totalLength - result[0].length - result[1].length;
   result.push(Array(buffer).join('.'));

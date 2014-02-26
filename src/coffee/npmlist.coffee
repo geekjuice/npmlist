@@ -71,7 +71,7 @@ isMainPackage = (pkg) -> /^[├└].*/g.test pkg
 
 # Write to stdout
 logger = (totalLength,line) ->
-  regex = /^\W+(.+)/
+  regex = /^\W+([^ ]+)/
   result = line.match(regex)[1].split '@'
   buffer = totalLength - result[0].length - result[1].length
   result.push Array(buffer).join '.'
