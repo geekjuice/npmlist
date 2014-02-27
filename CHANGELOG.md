@@ -2,4 +2,4 @@
 * Move npmls script to node package
 * Update regex to allow linked packages
 * Add simple unit tests
-* Add depth option with expanding view
+* Add depth option with expanding view (multiple flag options)

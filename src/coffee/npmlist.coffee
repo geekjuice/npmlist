@@ -15,7 +15,7 @@
 
 
 # Global
-npmlist = {}
+Npmlist = {}
 
 
 # Output Colors
@@ -30,23 +30,23 @@ reset = '\x1B[0m'
 isTest = global.NODE_ENV is 'test'
 
 # Help/Usage
-npmlist.help = ->
+Npmlist.help = ->
   console.log """
 
-  Usage: npmlist [flags] [--depth=n]
+  Usage: npmlist [flags]
 
   Flags:
-    help, -h, --help          This message
-    version, -v, --version    Version number
-    local, -l, --local        Local packages
-    --depth=n                 Traverse n levels deep (default: 0)
+    help, -h, --help            This message
+    version, -v, --version      Version number
+    local, -l, --local          Local packages
+    depth=n, -d=n, --depth=n    Traverse n levels deep (default: 0)
 
               """
   process.exit(1) unless isTest
 
 
 # Version
-npmlist.version = (callback) ->
+Npmlist.version = (callback) ->
   pkgjson = join __dirname, '../../package.json'
   readFile pkgjson, (err, file) ->
     throw err if err
@@ -57,27 +57,27 @@ npmlist.version = (callback) ->
 
 
 # Unknown Command
-npmlist.unknownCommand = (flag) ->
+Npmlist.unknownCommand = (flag) ->
   console.log "\nUnknown argument: #{flag}"
-  npmlist.help()
+  Npmlist.help()
 
 
 # Check if no packages
-npmlist.isEmpty = (list) -> /^└\W+(empty)/.test list
+Npmlist.isEmpty = (list) -> /^└\W+(empty)/.test list
 
 
 # Check if within depth
-npmlist.depth = (level, pkg) ->
+Npmlist.depth = (level, pkg) ->
   regex = new RegExp "^(.{0,#{2*level}})[├└].*", 'g'
   regex.test pkg
 
 
 # Get depth
-npmlist.getDepth = (padding) -> (padding - 4) / 2
+Npmlist.getDepth = (padding) -> (padding - 4) / 2
 
 
 # Get max line width to ensure full display
-npmlist.lineWidth = (lines, lowerlimit) ->
+Npmlist.lineWidth = (lines, lowerlimit) ->
   width = lines.reduce (prev,curr) ->
     if curr.length > prev then curr.length else prev
   , 0
@@ -85,8 +85,8 @@ npmlist.lineWidth = (lines, lowerlimit) ->
 
 
 # Extract relevance
-npmlist.parseResult = (result, width) ->
-  depth = npmlist.getDepth result[1].length
+Npmlist.parseResult = (result, width) ->
+  depth = Npmlist.getDepth result[1].length
   pkg = result[2].split '@'
   pkgLength = pkg[0].length + pkg[1].length
   buffer = width - pkgLength - depth*2
@@ -95,7 +95,7 @@ npmlist.parseResult = (result, width) ->
 
 
 # Prettify package and version
-npmlist.prettify = (pkg,version,spaces,depth) ->
+Npmlist.prettify = (pkg,version,spaces,depth) ->
   color = if depth then grey else magenta
   p = [color,pkg,reset].join ''
   v = [cyan,'[',version,']',reset].join ''
@@ -105,16 +105,16 @@ npmlist.prettify = (pkg,version,spaces,depth) ->
 
 
 # Write to stdout
-npmlist.logger = (length,line) ->
+Npmlist.logger = (length,line) ->
   regex = /^(\W+)([^ ]+)/
   result = line.match regex
-  pkg = npmlist.parseResult result, length
-  process.stdout.write npmlist.prettify.apply null,pkg unless isTest
+  pkg = Npmlist.parseResult result, length
+  process.stdout.write Npmlist.prettify.apply null,pkg unless isTest
   pkg.slice 0, 2 # Return pkg and version if needed
 
 
 # Main npm list function
-npmlist.npmls = (global, depth = 0) ->
+Npmlist.npmls = (global, depth = 0) ->
 
   # Set cmd and scope
   cmd = 'npm ls'
@@ -134,16 +134,16 @@ npmlist.npmls = (global, depth = 0) ->
 
     # Split full npm list tree by newline and filter by depth
     list = stdout.split '\n'
-    if list.filter(npmlist.isEmpty).length
+    if list.filter(Npmlist.isEmpty).length
       empty = [magenta,'(empty)',reset,'\n'].join ''
       return process.stdout.write(empty)
-    lines = list.filter npmlist.depth.bind null, depth
-    width = npmlist.lineWidth lines, width
-    lines.map npmlist.logger.bind null,width
+    lines = list.filter Npmlist.depth.bind null, depth
+    width = Npmlist.lineWidth lines, width
+    lines.map Npmlist.logger.bind null,width
 
 
 # Initialize
-npmlist.init = ->
+Npmlist.init = ->
 
   # Args
   args = process.argv.slice 2
@@ -151,26 +151,26 @@ npmlist.init = ->
   # Parse arguments (Greedy)
   depth = 0
   flag = undefined
-  depthRegex = /--depth=(\d+)/
+  depthRegex = /^(?:(?:--)?depth|-d)=(\d+)/
   flagRegex = /^(?:(?:(?:--)?(?:local|version|help))|(?:-(?:h|v|l)))$/g
   for arg in args
     flagMatches = arg.match flagRegex
     depthMatches = arg.match depthRegex
-    npmlist.unknownCommand arg unless flagMatches or depthMatches
+    Npmlist.unknownCommand arg unless flagMatches or depthMatches
     depth = depthMatches[1] if depthMatches and depth is 0
     flag = flagMatches[0] if flagMatches and flag is undefined
 
   # Flag switch
   switch flag
-    when "help","-h","--help"             then npmlist.help()
-    when "version","-v","--version"       then npmlist.version()
-    when "local","-l","--local"           then npmlist.npmls false, depth
-    else npmlist.npmls true, depth
+    when "help","-h","--help"             then Npmlist.help()
+    when "version","-v","--version"       then Npmlist.version()
+    when "local","-l","--local"           then Npmlist.npmls false, depth
+    else Npmlist.npmls true, depth
 
 
 # Export
 if isTest
-  module.exports = npmlist
+  module.exports = Npmlist
 else
-  module.exports.call = npmlist.init
+  module.exports.call = Npmlist.init
 

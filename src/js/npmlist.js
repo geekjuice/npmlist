@@ -6,7 +6,7 @@
 
     by Nicholas Hwang
  */
-var blue, cyan, exec, grey, isTest, join, magenta, npmlist, readFile, reset, yellow;
+var Npmlist, blue, cyan, exec, grey, isTest, join, magenta, readFile, reset, yellow;
 
 exec = require('child_process').exec;
 
@@ -14,7 +14,7 @@ readFile = require('fs').readFile;
 
 join = require('path').join;
 
-npmlist = {};
+Npmlist = {};
 
 yellow = '\x1B[33m';
 
@@ -30,14 +30,14 @@ reset = '\x1B[0m';
 
 isTest = global.NODE_ENV === 'test';
 
-npmlist.help = function() {
-  console.log("\nUsage: npmlist [flags] [--depth=n]\n\nFlags:\n  help, -h, --help          This message\n  version, -v, --version    Version number\n  local, -l, --local        Local packages\n  --depth=n                 Traverse n levels deep (default: 0)\n");
+Npmlist.help = function() {
+  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  help, -h, --help            This message\n  version, -v, --version      Version number\n  local, -l, --local          Local packages\n  depth=n, -d=n, --depth=n    Traverse n levels deep (default: 0)\n");
   if (!isTest) {
     return process.exit(1);
   }
 };
 
-npmlist.version = function(callback) {
+Npmlist.version = function(callback) {
   var pkgjson;
   pkgjson = join(__dirname, '../../package.json');
   return readFile(pkgjson, function(err, file) {
@@ -56,26 +56,26 @@ npmlist.version = function(callback) {
   });
 };
 
-npmlist.unknownCommand = function(flag) {
+Npmlist.unknownCommand = function(flag) {
   console.log("\nUnknown argument: " + flag);
-  return npmlist.help();
+  return Npmlist.help();
 };
 
-npmlist.isEmpty = function(list) {
+Npmlist.isEmpty = function(list) {
   return /^└\W+(empty)/.test(list);
 };
 
-npmlist.depth = function(level, pkg) {
+Npmlist.depth = function(level, pkg) {
   var regex;
   regex = new RegExp("^(.{0," + (2 * level) + "})[├└].*", 'g');
   return regex.test(pkg);
 };
 
-npmlist.getDepth = function(padding) {
+Npmlist.getDepth = function(padding) {
   return (padding - 4) / 2;
 };
 
-npmlist.lineWidth = function(lines, lowerlimit) {
+Npmlist.lineWidth = function(lines, lowerlimit) {
   var width;
   width = lines.reduce(function(prev, curr) {
     if (curr.length > prev) {
@@ -91,9 +91,9 @@ npmlist.lineWidth = function(lines, lowerlimit) {
   }
 };
 
-npmlist.parseResult = function(result, width) {
+Npmlist.parseResult = function(result, width) {
   var buffer, depth, pkg, pkgLength;
-  depth = npmlist.getDepth(result[1].length);
+  depth = Npmlist.getDepth(result[1].length);
   pkg = result[2].split('@');
   pkgLength = pkg[0].length + pkg[1].length;
   buffer = width - pkgLength - depth * 2;
@@ -101,7 +101,7 @@ npmlist.parseResult = function(result, width) {
   return pkg;
 };
 
-npmlist.prettify = function(pkg, version, spaces, depth) {
+Npmlist.prettify = function(pkg, version, spaces, depth) {
   var color, l, p, s, v;
   color = depth ? grey : magenta;
   p = [color, pkg, reset].join('');
@@ -111,18 +111,18 @@ npmlist.prettify = function(pkg, version, spaces, depth) {
   return [l, p, s, v, '\n'].join('');
 };
 
-npmlist.logger = function(length, line) {
+Npmlist.logger = function(length, line) {
   var pkg, regex, result;
   regex = /^(\W+)([^ ]+)/;
   result = line.match(regex);
-  pkg = npmlist.parseResult(result, length);
+  pkg = Npmlist.parseResult(result, length);
   if (!isTest) {
-    process.stdout.write(npmlist.prettify.apply(null, pkg));
+    process.stdout.write(Npmlist.prettify.apply(null, pkg));
   }
   return pkg.slice(0, 2);
 };
 
-npmlist.npmls = function(global, depth) {
+Npmlist.npmls = function(global, depth) {
   var cmd, scope;
   if (depth == null) {
     depth = 0;
@@ -140,29 +140,29 @@ npmlist.npmls = function(global, depth) {
     msg = ['\n', blue, msg, '\n\n'].join('');
     process.stdout.write(msg);
     list = stdout.split('\n');
-    if (list.filter(npmlist.isEmpty).length) {
+    if (list.filter(Npmlist.isEmpty).length) {
       empty = [magenta, '(empty)', reset, '\n'].join('');
       return process.stdout.write(empty);
     }
-    lines = list.filter(npmlist.depth.bind(null, depth));
-    width = npmlist.lineWidth(lines, width);
-    return lines.map(npmlist.logger.bind(null, width));
+    lines = list.filter(Npmlist.depth.bind(null, depth));
+    width = Npmlist.lineWidth(lines, width);
+    return lines.map(Npmlist.logger.bind(null, width));
   });
 };
 
-npmlist.init = function() {
+Npmlist.init = function() {
   var arg, args, depth, depthMatches, depthRegex, flag, flagMatches, flagRegex, _i, _len;
   args = process.argv.slice(2);
   depth = 0;
   flag = void 0;
-  depthRegex = /--depth=(\d+)/;
+  depthRegex = /^(?:(?:--)?depth|-d)=(\d+)/;
   flagRegex = /^(?:(?:(?:--)?(?:local|version|help))|(?:-(?:h|v|l)))$/g;
   for (_i = 0, _len = args.length; _i < _len; _i++) {
     arg = args[_i];
     flagMatches = arg.match(flagRegex);
     depthMatches = arg.match(depthRegex);
     if (!(flagMatches || depthMatches)) {
-      npmlist.unknownCommand(arg);
+      Npmlist.unknownCommand(arg);
     }
     if (depthMatches && depth === 0) {
       depth = depthMatches[1];
@@ -175,22 +175,22 @@ npmlist.init = function() {
     case "help":
     case "-h":
     case "--help":
-      return npmlist.help();
+      return Npmlist.help();
     case "version":
     case "-v":
     case "--version":
-      return npmlist.version();
+      return Npmlist.version();
     case "local":
     case "-l":
     case "--local":
-      return npmlist.npmls(false, depth);
+      return Npmlist.npmls(false, depth);
     default:
-      return npmlist.npmls(true, depth);
+      return Npmlist.npmls(true, depth);
   }
 };
 
 if (isTest) {
-  module.exports = npmlist;
+  module.exports = Npmlist;
 } else {
-  module.exports.call = npmlist.init;
+  module.exports.call = Npmlist.init;
 }
