@@ -1,6 +1,6 @@
 # npmlist
 
-Sugar wrapped `npm list --depth=0`
+Sugar wrapped `npm list` with optional depth
 
 Project initiated using [nblocks](https://github.com/geekjuice/nblocks)
 
