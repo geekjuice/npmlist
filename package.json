@@ -1,6 +1,6 @@
 {
   "name": "npmlist",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": "Nicholas Hwang <nick.joosung.hwang@gmail.com>",
   "license": "MIT",
   "description": "Pretty npm list",
