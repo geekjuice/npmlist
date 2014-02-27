@@ -47,10 +47,26 @@ Usage (sans color)
   gulp-coffee.............[1.4.1]
   gulp-plumber............[0.5.6]
   mocha..................[1.17.1]
+
+  $ npmlist --depth=1 local
+  chai....................[1.9.0]
+    assertion-error.......[1.0.0]
+    deep-eql..............[0.1.3]
+  coffee-script...........[1.7.1]
+    mkdirp................[0.3.5]
+  gulp....................[3.5.2]
+    archy.................[0.0.2]
+    deprecated............[0.0.1]
+    findup-sync...........[0.1.2]
+    gulp-util............[2.2.14]
+    minimist..............[0.0.8]
+    orchestrator..........[0.3.3]
+    ...
 ```
 
 ## Future Plans
-* Allow for depth option like `npm list`
+* ~~Allow for depth option like `npm list`~~
+* Possibly allow for color options
 
 ## Credits
 
