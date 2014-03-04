@@ -91,6 +91,12 @@ Npmlist.lineWidth = function(lines, lowerlimit) {
   }
 };
 
+Npmlist.stripSource = function(line) {
+  var regex;
+  regex = /^(\W+[^ ]+)/;
+  return (line.match(regex))[1];
+};
+
 Npmlist.parseResult = function(result, width) {
   var buffer, depth, pkg, pkgLength;
   depth = Npmlist.getDepth(result[1].length);
@@ -145,6 +151,7 @@ Npmlist.npmls = function(global, depth) {
       return process.stdout.write(empty);
     }
     lines = list.filter(Npmlist.depth.bind(null, depth));
+    lines = lines.map(Npmlist.stripSource);
     width = Npmlist.lineWidth(lines, width);
     return lines.map(Npmlist.logger.bind(null, width));
   });

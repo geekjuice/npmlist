@@ -5,7 +5,7 @@ _ = require './spec_helper'
 # Examples
 depth0 = '├─┬ chai@1.9.0'
 depth1 = '│ └─┬ deep-eql@0.1.3'
-depth2 = '│   └── type-detect@0.1.1'
+depth2 = '│   └── type-detect@0.1.1 (git://github.com/geekjuice/npmlist#sha5hash'
 empty = '└── (empty)'
 
 # Tests
@@ -42,6 +42,10 @@ describe 'npmlist', ->
     lines = ['foo','bar','foobar', 'fubar']
     _.expect(_.nls.lineWidth lines, 8).to.equal 8
     _.expect(_.nls.lineWidth lines, 4).to.equal 6
+
+  it '#stripSource', ->
+    _.expect(_.nls.stripSource depth0).to.equal '├─┬ chai@1.9.0'
+    _.expect(_.nls.stripSource depth2).to.equal '│   └── type-detect@0.1.1'
 
   it '#parseResult', ->
     regex = /^(\W+)([^ ]+)/

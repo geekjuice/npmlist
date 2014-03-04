@@ -84,6 +84,12 @@ Npmlist.lineWidth = (lines, lowerlimit) ->
   if width > lowerlimit then width else lowerlimit
 
 
+# Strip source - pkg@version (source)
+Npmlist.stripSource = (line) ->
+  regex = /^(\W+[^ ]+)/
+  (line.match regex)[1]
+
+
 # Extract relevance
 Npmlist.parseResult = (result, width) ->
   depth = Npmlist.getDepth result[1].length
@@ -138,6 +144,7 @@ Npmlist.npmls = (global, depth = 0) ->
       empty = [magenta,'(empty)',reset,'\n'].join ''
       return process.stdout.write(empty)
     lines = list.filter Npmlist.depth.bind null, depth
+    lines = lines.map Npmlist.stripSource
     width = Npmlist.lineWidth lines, width
     lines.map Npmlist.logger.bind null,width
 
