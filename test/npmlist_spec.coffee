@@ -6,6 +6,7 @@ _ = require './spec_helper'
 depth0 = '├─┬ chai@1.9.0'
 depth1 = '│ └─┬ deep-eql@0.1.3'
 depth2 = '│   └── type-detect@0.1.1 (git://github.com/geekjuice/npmlist#sha5hash'
+badVer = '└─┬ npmlist@*'
 empty = '└── (empty)'
 
 # Tests
@@ -48,11 +49,14 @@ describe 'npmlist', ->
     _.expect(_.nls.stripSource depth2).to.equal '│   └── type-detect@0.1.1'
 
   it '#parseResult', ->
+    # NOTE: Lengths hardcoded in for simplicity
     regex = /^(\W+)([^ ]+)/
     _.expect(_.nls.parseResult depth0.match(regex), 10)
       .to.eql ['chai','1.9.0','',0]
     _.expect(_.nls.parseResult depth1.match(regex), 15)
       .to.eql ['deep-eql','0.1.3','',1]
+    _.expect(_.nls.parseResult badVer.match(regex), 9)
+      .to.eql ['npmlist','*','',0]
 
   it '#prettify', ->
     pretty = _.nls.prettify 'chai','1.9.0',null,2
