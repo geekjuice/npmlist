@@ -65,8 +65,9 @@ Usage (sans color)
 ```
 
 ## Future Plans
-* ~~Allow for depth option like `npm list`~~
-* Possibly allow for color options
+* Allow configuration of output colors. Realized current colorscheme may be
+  fugly on some terminals... 
+
 
 ## Credits
 
