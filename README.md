@@ -65,8 +65,10 @@ Usage (sans color)
 ```
 
 ## Future Plans
+* Allow flag for sans color option
 * Allow configuration of output colors. Realized current colorscheme may be
   fugly on some terminals... 
+* Put options in `~/.npmrc` for easy fetch one less config file
 
 
 ## Credits
