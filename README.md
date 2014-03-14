@@ -69,6 +69,7 @@ Usage (sans color)
 * Allow configuration of output colors. Realized current colorscheme may be
   fugly on some terminals... 
 * Put options in `~/.npmrc` for easy fetch one less config file
+* Signify if using linked package or installed
 
 
 ## Credits
