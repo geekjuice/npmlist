@@ -64,11 +64,63 @@ Usage (sans color)
     ...
 ```
 
+
+## Color Customization
+
+The color of the output can be changed through a few options.
+
+```sh
+  # One-off colorscheme
+  $ npmlist -c=red,yellow,blue,magenta,cyan
+  ...
+
+  # Setting persistent colorscheme
+  $ npmlist -s=red,yellow,blue,magenta,cyan
+
+  Current colorscheme:
+
+  Package...................red
+  Version................yellow
+  Banner...................blue
+  Dots..................magenta
+  Sub-package..............cyan
+
+  # Get current colorscheme
+  $ npmlist -k
+
+  Current colorscheme:
+
+  Package...................red
+  Version................yellow
+  Banner...................blue
+  Dots..................magenta
+  Sub-package..............cyan
+```
+
+As you can see from above, there are five variable colors for `npmlist`:
+Package name, version, banner, dots, and sub-packages. When specifying more
+than 1 color, they will populate in the order as above. When only one color is
+given, everything will be that color. The default colorscheme is the same as
+previous versions of `npmlist`:
+
+```coffee-script
+defaultColors =
+COLORS =
+  pkg:      'magenta'
+  version:  'cyan'
+  banner:   'blue'
+  dots:     'grey'
+  subpkg:   'grey'
+```
+
+For persistent color settings, the colors are saved as a variable in
+`$HOME/.npmrc` as `npmlist.colors`.
+
+To see what colors are avaialble, check out [colors](src/coffee/color.coffee)
+here.
+
+
 ## Future Plans
-* Allow flag for sans color option
-* Allow configuration of output colors. Realized current colorscheme may be
-  fugly on some terminals... 
-* Put options in `~/.npmrc` for easy fetch one less config file
 * Signify if using linked package or installed
 
 

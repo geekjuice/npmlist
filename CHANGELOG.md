@@ -1,3 +1,10 @@
+## 2014-03-16
+* Major update with color options added
+* Add ability to change color of output
+  * Banner, package name, version, dots, and sub-packages
+* Persistent colorscheme via npmrc
+
+
 ## 2014-03-03
 * Fix depth length issue with long source i.e. github
 

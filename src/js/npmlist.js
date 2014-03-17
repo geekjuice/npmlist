@@ -1,12 +1,13 @@
 
 /*
     npm ls replacement
+
     - Pretty log of installed npm list
     - Current npm (1.4.4) list's depth 0 is broken
 
     by Nicholas Hwang
  */
-var Npmlist, blue, cyan, exec, grey, isTest, join, magenta, readFile, reset, yellow;
+var Conf, Npmlist, c, exec, isTest, join, readFile;
 
 exec = require('child_process').exec;
 
@@ -14,28 +15,35 @@ readFile = require('fs').readFile;
 
 join = require('path').join;
 
+Conf = require('./color_conf');
+
+c = require('./color');
+
 Npmlist = {};
 
-yellow = '\x1B[33m';
 
-blue = '\x1B[34m';
-
-magenta = '\x1B[35m';
-
-cyan = '\x1B[36m';
-
-grey = '\x1B[90m';
-
-reset = '\x1B[0m';
+/*
+ * Test?
+ */
 
 isTest = global.NODE_ENV === 'test';
 
+
+/*
+ * Help/Usage
+ */
+
 Npmlist.help = function() {
-  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  help, -h, --help            This message\n  version, -v, --version      Version number\n  local, -l, --local          Local packages\n  depth=n, -d=n, --depth=n    Traverse n levels deep (default: 0)\n");
+  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  -h,       [--]help                  This message\n  -v,       [--]version               Version number\n  -k,       [--]colorscheme           Display current colorscheme\n  -l,       [--]local                 Local packages\n  -d=n,     [--]depth=n               Traverse n levels deep\n  -c=x,y,z, [--]colors=x,y,z          Use colors specified\n  -s=x,y,z, [--]setcolors=x,y,z       Set colors (persistent)\n");
   if (!isTest) {
     return process.exit(1);
   }
 };
+
+
+/*
+ * Version
+ */
 
 Npmlist.version = function(callback) {
   var pkgjson;
@@ -56,14 +64,29 @@ Npmlist.version = function(callback) {
   });
 };
 
+
+/*
+ * Unknown Command
+ */
+
 Npmlist.unknownCommand = function(flag) {
   console.log("\nUnknown argument: " + flag);
   return Npmlist.help();
 };
 
+
+/*
+ * Check if no packages
+ */
+
 Npmlist.isEmpty = function(list) {
   return /^└\W+(empty)/.test(list);
 };
+
+
+/*
+ * Check if within depth
+ */
 
 Npmlist.depth = function(level, pkg) {
   var regex;
@@ -71,9 +94,19 @@ Npmlist.depth = function(level, pkg) {
   return regex.test(pkg);
 };
 
+
+/*
+ * Get depth
+ */
+
 Npmlist.getDepth = function(padding) {
   return (padding - 4) / 2;
 };
+
+
+/*
+ * Get max line width to ensure full display
+ */
 
 Npmlist.lineWidth = function(lines, lowerlimit) {
   var width;
@@ -91,11 +124,21 @@ Npmlist.lineWidth = function(lines, lowerlimit) {
   }
 };
 
+
+/*
+ * Strip source - pkg@version (source)
+ */
+
 Npmlist.stripSource = function(line) {
   var regex;
   regex = /^(\W+[^ ]+)/;
   return (line.match(regex))[1];
 };
+
+
+/*
+ * Extract relevance
+ */
 
 Npmlist.parseResult = function(result, width) {
   var buffer, depth, pkg, pkgLength;
@@ -107,15 +150,25 @@ Npmlist.parseResult = function(result, width) {
   return pkg;
 };
 
+
+/*
+ * Prettify package and version
+ */
+
 Npmlist.prettify = function(pkg, version, spaces, depth) {
-  var color, l, p, s, v;
-  color = depth ? grey : magenta;
-  p = [color, pkg, reset].join('');
-  v = [cyan, '[', version, ']', reset].join('');
-  s = [grey, spaces, reset].join('');
+  var l, p, pkgcolor, s, v;
+  pkgcolor = depth ? c[Npmlist.colors.subpkg] : c[Npmlist.colors.pkg];
+  p = [pkgcolor, pkg, c.reset].join('');
+  v = [c[Npmlist.colors.version], '[', version, ']', c.reset].join('');
+  s = [c[Npmlist.colors.dots], spaces, c.reset].join('');
   l = Array(depth * 2 + 1).join(' ');
   return [l, p, s, v, '\n'].join('');
 };
+
+
+/*
+ * Write to stdout
+ */
 
 Npmlist.logger = function(length, line) {
   var pkg, regex, result;
@@ -128,73 +181,123 @@ Npmlist.logger = function(length, line) {
   return pkg.slice(0, 2);
 };
 
-Npmlist.npmls = function(global, depth) {
-  var cmd, scope;
+
+/*
+ * Main npm list function
+ */
+
+Npmlist.npmls = function(global, depth, colors) {
+  var cmd, runCommand, scope;
   if (depth == null) {
     depth = 0;
   }
+  if (colors == null) {
+    colors = '';
+  }
+  runCommand = function() {
+    return exec(cmd, function(err, stdout, stderr) {
+      var banner, empty, lines, list, msg, width;
+      msg = ['Installed npm packages:', scope].join(' ');
+      width = msg.length - 1;
+      banner = ['\n', c[Npmlist.colors.banner], msg, c.reset, '\n\n'].join('');
+      process.stdout.write(banner);
+      list = stdout.split('\n');
+      if (list.filter(Npmlist.isEmpty).length) {
+        empty = [c[Npmlist.colors.pkg], '(empty)', reset, '\n'].join('');
+        return process.stdout.write(empty);
+      }
+      lines = list.filter(Npmlist.depth.bind(null, depth));
+      lines = lines.map(Npmlist.stripSource);
+      width = Npmlist.lineWidth(lines, width);
+      return lines.map(Npmlist.logger.bind(null, width));
+    });
+  };
   cmd = 'npm ls';
   scope = '(local)';
   if (global) {
     cmd = [cmd, ' -g'].join(' ');
     scope = '(global)';
   }
-  return exec(cmd, function(err, stdout, stderr) {
-    var empty, lines, list, msg, width;
-    msg = ['Installed npm packages:', scope].join(' ');
-    width = msg.length - 1;
-    msg = ['\n', blue, msg, '\n\n'].join('');
-    process.stdout.write(msg);
-    list = stdout.split('\n');
-    if (list.filter(Npmlist.isEmpty).length) {
-      empty = [magenta, '(empty)', reset, '\n'].join('');
-      return process.stdout.write(empty);
-    }
-    lines = list.filter(Npmlist.depth.bind(null, depth));
-    lines = lines.map(Npmlist.stripSource);
-    width = Npmlist.lineWidth(lines, width);
-    return lines.map(Npmlist.logger.bind(null, width));
-  });
+  if (colors.length) {
+    Npmlist.colors = Conf.parseColors(colors);
+    return runCommand();
+  } else {
+    return Conf.getColors(function(colors) {
+      Npmlist.colors = Conf.parseColors(colors);
+      return runCommand();
+    });
+  }
 };
 
+
+/*
+ * Initialize
+ */
+
 Npmlist.init = function() {
-  var arg, args, depth, depthMatches, depthRegex, flag, flagMatches, flagRegex, _i, _len;
+  var arg, args, colorMatches, colorRegex, colors, depth, depthMatches, depthRegex, flag, flagMatches, flagRegex, getColors, setColors, setMatches, setRegex, _i, _len;
   args = process.argv.slice(2);
   depth = 0;
   flag = void 0;
+  colors = '';
+  setColors = '';
+  getColors = false;
   depthRegex = /^(?:(?:--)?depth|-d)=(\d+)/;
-  flagRegex = /^(?:(?:(?:--)?(?:local|version|help))|(?:-(?:h|v|l)))$/g;
+  flagRegex = /^(?:(?:(?:--)?(?:colorscheme|local|version|help))|(?:-(?:k|l|v|h)))$/g;
+  colorRegex = /^(?:(?:--)?colors|-c)=(.+)/;
+  setRegex = /^(?:(?:--)?setcolors|-s)=(.+)/;
   for (_i = 0, _len = args.length; _i < _len; _i++) {
     arg = args[_i];
     flagMatches = arg.match(flagRegex);
     depthMatches = arg.match(depthRegex);
-    if (!(flagMatches || depthMatches)) {
+    colorMatches = arg.match(colorRegex);
+    setMatches = arg.match(setRegex);
+    if (!(flagMatches || depthMatches || colorMatches || setMatches)) {
       Npmlist.unknownCommand(arg);
-    }
-    if (depthMatches && depth === 0) {
-      depth = depthMatches[1];
     }
     if (flagMatches && flag === void 0) {
       flag = flagMatches[0];
     }
+    if (depthMatches && depth === 0) {
+      depth = depthMatches[1];
+    }
+    if (colorMatches && colors.length === 0) {
+      colors = colorMatches[1];
+    }
+    if (setMatches && setColors.length === 0) {
+      setColors = setMatches[1];
+    }
   }
-  switch (flag) {
-    case "help":
-    case "-h":
-    case "--help":
-      return Npmlist.help();
-    case "version":
-    case "-v":
-    case "--version":
-      return Npmlist.version();
-    case "local":
-    case "-l":
-    case "--local":
-      return Npmlist.npmls(false, depth);
-    default:
-      return Npmlist.npmls(true, depth);
+  if (setColors.length !== 0) {
+    return Conf.setColors(setColors);
+  } else {
+    switch (flag) {
+      case "colorscheme":
+      case "-k":
+      case "--colorscheme":
+        return Conf.colorscheme();
+      case "help":
+      case "-h":
+      case "--help":
+        return Npmlist.help();
+      case "version":
+      case "-v":
+      case "--version":
+        return Npmlist.version();
+      case "local":
+      case "-l":
+      case "--local":
+        return Npmlist.npmls(false, depth, colors);
+      default:
+        return Npmlist.npmls(true, depth, colors);
+    }
   }
 };
+
+
+/*
+ * Export
+ */
 
 if (isTest) {
   module.exports = Npmlist;
