@@ -7,7 +7,7 @@
 
     by Nicholas Hwang
  */
-var Conf, Npmlist, c, exec, isTest, join, readFile;
+var Conf, Npmlist, SCOPEVAR, c, exec, isTest, join, readFile;
 
 exec = require('child_process').exec;
 
@@ -18,6 +18,8 @@ join = require('path').join;
 Conf = require('./color_conf');
 
 c = require('./color');
+
+SCOPEVAR = 'npmlist.scope';
 
 Npmlist = {};
 
@@ -34,7 +36,7 @@ isTest = global.NODE_ENV === 'test';
  */
 
 Npmlist.help = function() {
-  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  -h,       [--]help                  This message\n  -v,       [--]version               Version number\n  -k,       [--]colorscheme           Display current colorscheme\n  -l,       [--]local                 Local packages\n  -d=n,     [--]depth=n               Traverse n levels deep\n  -c=x,y,z, [--]colors=x,y,z          Use colors specified\n  -s=x,y,z, [--]setcolors=x,y,z       Set colors (persistent)\n");
+  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  -h,         [--]help                  This message\n  -v,         [--]version               Version number\n  -l,         [--]local                 Local packages\n  -g,         [--]global                Global packages\n  -cs,        [--]colorscheme           Display current colorscheme\n  -d=n,       [--]depth=n               Traverse n levels deep\n  -c=x,y,z,   [--]colors=x,y,z          Use colors specified\n  -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)\n  -ss=scope   [--]setcolors=scope       Set global or local (persistent)\n");
   if (!isTest) {
     return process.exit(1);
   }
@@ -81,6 +83,34 @@ Npmlist.unknownCommand = function(flag) {
 
 Npmlist.isEmpty = function(list) {
   return /^└\W+(empty)/.test(list);
+};
+
+
+/*
+ * Get scope from npmrc
+ */
+
+Npmlist.getScope = function(callback) {
+  return exec("npm get " + SCOPEVAR, function(err, stdout, stderr) {
+    return callback(/^local$/i.test(stdout.trim()) ? false : true);
+  });
+};
+
+
+/*
+ * Set scope to npmrc
+ */
+
+Npmlist.setScope = function(scope) {
+  scope = /^l(ocal)?$/i.test(scope) ? 'local' : 'global';
+  return exec("npm set " + SCOPEVAR + " " + scope, function(err, stdout, stderr) {
+    var msg;
+    msg = "Scope will no default to: ";
+    scope = scope === 'local' ? "" + c.magenta + scope : "" + c.cyan + scope;
+    msg = ['\n', c.blue, msg, scope, c.reset, '\n'].join('');
+    process.stdout.write(msg);
+    return process.exit(1);
+  });
 };
 
 
@@ -236,24 +266,27 @@ Npmlist.npmls = function(global, depth, colors) {
  */
 
 Npmlist.init = function() {
-  var arg, args, colorMatches, colorRegex, colors, depth, depthMatches, depthRegex, flag, flagMatches, flagRegex, getColors, setColors, setMatches, setRegex, _i, _len;
+  var arg, args, colorMatches, colorRegex, colors, depth, depthMatches, depthRegex, flag, flagMatches, flagRegex, getColors, scope, scopeMatches, scopeRegex, setColors, setMatches, setRegex, _i, _len;
   args = process.argv.slice(2);
   depth = 0;
   flag = void 0;
   colors = '';
   setColors = '';
   getColors = false;
+  scope = '';
   depthRegex = /^(?:(?:--)?depth|-d)=(\d+)/;
-  flagRegex = /^(?:(?:(?:--)?(?:colorscheme|local|version|help))|(?:-(?:k|l|v|h)))$/g;
+  flagRegex = /^(?:(?:(?:--)?(?:scope|colorscheme|global|local|version|help))|(?:-(?:s|cs|g|l|v|h)))$/g;
   colorRegex = /^(?:(?:--)?colors|-c)=(.+)/;
-  setRegex = /^(?:(?:--)?setcolors|-s)=(.+)/;
+  setRegex = /^(?:(?:--)?setcolors|-sc)=(.+)/;
+  scopeRegex = /^(?:(?:--)?setscope|-ss)=(.+)/;
   for (_i = 0, _len = args.length; _i < _len; _i++) {
     arg = args[_i];
     flagMatches = arg.match(flagRegex);
     depthMatches = arg.match(depthRegex);
     colorMatches = arg.match(colorRegex);
     setMatches = arg.match(setRegex);
-    if (!(flagMatches || depthMatches || colorMatches || setMatches)) {
+    scopeMatches = arg.match(scopeRegex);
+    if (!(flagMatches || depthMatches || colorMatches || setMatches || scopeMatches)) {
       Npmlist.unknownCommand(arg);
     }
     if (flagMatches && flag === void 0) {
@@ -268,13 +301,19 @@ Npmlist.init = function() {
     if (setMatches && setColors.length === 0) {
       setColors = setMatches[1];
     }
+    if (scopeMatches && scope.length === 0) {
+      scope = scopeMatches[1];
+    }
+  }
+  if (scope.length !== 0) {
+    Npmlist.setScope(scope);
   }
   if (setColors.length !== 0) {
     return Conf.setColors(setColors);
   } else {
     switch (flag) {
       case "colorscheme":
-      case "-k":
+      case "-cs":
       case "--colorscheme":
         return Conf.colorscheme();
       case "help":
@@ -285,12 +324,18 @@ Npmlist.init = function() {
       case "-v":
       case "--version":
         return Npmlist.version();
+      case "global":
+      case "-g":
+      case "--global":
+        return Npmlist.npmls(true, depth, colors);
       case "local":
       case "-l":
       case "--local":
         return Npmlist.npmls(false, depth, colors);
       default:
-        return Npmlist.npmls(true, depth, colors);
+        return Npmlist.getScope(function(global) {
+          return Npmlist.npmls(global, depth, colors);
+        });
     }
   }
 };

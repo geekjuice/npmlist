@@ -17,6 +17,9 @@
 Conf = require('./color_conf')
 c = require('./color')
 
+# Constants
+SCOPEVAR = 'npmlist.scope'
+
 # Global
 Npmlist = {}
 
@@ -36,13 +39,15 @@ Npmlist.help = ->
   Usage: npmlist [flags]
 
   Flags:
-    -h,       [--]help                  This message
-    -v,       [--]version               Version number
-    -k,       [--]colorscheme           Display current colorscheme
-    -l,       [--]local                 Local packages
-    -d=n,     [--]depth=n               Traverse n levels deep
-    -c=x,y,z, [--]colors=x,y,z          Use colors specified
-    -s=x,y,z, [--]setcolors=x,y,z       Set colors (persistent)
+    -h,         [--]help                  This message
+    -v,         [--]version               Version number
+    -l,         [--]local                 Local packages
+    -g,         [--]global                Global packages
+    -cs,        [--]colorscheme           Display current colorscheme
+    -d=n,       [--]depth=n               Traverse n levels deep
+    -c=x,y,z,   [--]colors=x,y,z          Use colors specified
+    -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)
+    -ss=scope   [--]setcolors=scope       Set global or local (persistent)
 
               """
   process.exit(1) unless isTest
@@ -73,6 +78,29 @@ Npmlist.unknownCommand = (flag) ->
 # Check if no packages
 ###
 Npmlist.isEmpty = (list) -> /^└\W+(empty)/.test list
+
+
+###
+# Get scope from npmrc
+###
+Npmlist.getScope = (callback) ->
+  exec "npm get #{SCOPEVAR}", (err, stdout, stderr) ->
+    callback if /^local$/i.test stdout.trim() then false else true
+
+
+###
+# Set scope to npmrc
+###
+Npmlist.setScope = (scope) ->
+  scope = if /^l(ocal)?$/i.test scope then 'local' else 'global'
+  exec "npm set #{SCOPEVAR} #{scope}", (err, stdout, stderr) ->
+    msg = "Scope will no default to: "
+    scope = if scope is 'local'
+    then "#{c.magenta}#{scope}"
+    else "#{c.cyan}#{scope}"
+    msg = ['\n',c.blue,msg,scope,c.reset,'\n'].join ''
+    process.stdout.write msg
+    process.exit(1)
 
 
 ###
@@ -203,12 +231,14 @@ Npmlist.init = ->
   colors = ''
   setColors = ''
   getColors = false
+  scope = ''
 
   # Regex
   depthRegex = /^(?:(?:--)?depth|-d)=(\d+)/
-  flagRegex = /^(?:(?:(?:--)?(?:colorscheme|local|version|help))|(?:-(?:k|l|v|h)))$/g
+  flagRegex = /^(?:(?:(?:--)?(?:scope|colorscheme|global|local|version|help))|(?:-(?:s|cs|g|l|v|h)))$/g
   colorRegex = /^(?:(?:--)?colors|-c)=(.+)/
-  setRegex = /^(?:(?:--)?setcolors|-s)=(.+)/
+  setRegex = /^(?:(?:--)?setcolors|-sc)=(.+)/
+  scopeRegex = /^(?:(?:--)?setscope|-ss)=(.+)/
 
   # Parse arguments
   for arg in args
@@ -216,12 +246,19 @@ Npmlist.init = ->
     depthMatches = arg.match depthRegex
     colorMatches = arg.match colorRegex
     setMatches = arg.match setRegex
-    unless flagMatches or depthMatches or colorMatches or setMatches
-      Npmlist.unknownCommand arg
+    scopeMatches = arg.match scopeRegex
+    unless flagMatches or depthMatches or colorMatches or
+      setMatches or scopeMatches
+        Npmlist.unknownCommand arg
     flag = flagMatches[0] if flagMatches and flag is undefined
     depth = depthMatches[1] if depthMatches and depth is 0
     colors = colorMatches[1] if colorMatches and colors.length is 0
     setColors = setMatches[1] if setMatches and setColors.length is 0
+    scope = scopeMatches[1] if scopeMatches and scope.length is 0
+
+  # Set scope and return early
+  if scope.length isnt 0
+    Npmlist.setScope scope
 
   # Set colors and return early
   if setColors.length isnt 0
@@ -230,16 +267,19 @@ Npmlist.init = ->
   # Flag switch
   else
     switch flag
-      when "colorscheme","-k","--colorscheme"
+      when "colorscheme","-cs","--colorscheme"
         Conf.colorscheme()
       when "help","-h","--help"
         Npmlist.help()
       when "version","-v","--version"
         Npmlist.version()
+      when "global","-g","--global"
+        Npmlist.npmls true, depth, colors
       when "local","-l","--local"
         Npmlist.npmls false, depth, colors
       else
-        Npmlist.npmls true, depth, colors
+        Npmlist.getScope (global) ->
+          Npmlist.npmls global, depth, colors
 
 
 ###
