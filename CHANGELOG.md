@@ -2,6 +2,7 @@
 * Add asterisk to version when using link
 * Add persistent scope
 * Fix missing color prefix for empty packages
+* Make home directory OS agnostic
 
 
 ## 2014-03-16
