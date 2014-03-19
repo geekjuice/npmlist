@@ -12,7 +12,8 @@
 c = require('./color')
 
 # Constants
-NPMRC = join(process.env.HOME, '.npmrc')
+HOMEDIR = if process.platform is 'win32' then 'USERPROFILE' else 'HOME'
+NPMRC = join(process.env[HOMEDIR], '.npmrc')
 COLORVAR = 'npmlist.colors'
 COLORS =
   pkg:      'magenta'

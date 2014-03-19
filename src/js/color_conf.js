@@ -2,7 +2,7 @@
 /*
   Color configs
  */
-var COLORS, COLORVAR, ColorConf, NPMRC, c, exec, existsSync, join;
+var COLORS, COLORVAR, ColorConf, HOMEDIR, NPMRC, c, exec, existsSync, join;
 
 exec = require('child_process').exec;
 
@@ -12,7 +12,9 @@ join = require('path').join;
 
 c = require('./color');
 
-NPMRC = join(process.env.HOME, '.npmrc');
+HOMEDIR = process.platform === 'win32' ? 'USERPROFILE' : 'HOME';
+
+NPMRC = join(process.env[HOMEDIR], '.npmrc');
 
 COLORVAR = 'npmlist.colors';
 
