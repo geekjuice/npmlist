@@ -1,3 +1,7 @@
+## 2014-03-18
+* Add asterisk to version when using link
+
+
 ## 2014-03-16
 * Major update with color options added
 * Add ability to change color of output

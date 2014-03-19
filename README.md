@@ -46,7 +46,7 @@ Usage (sans color)
   gulp-clean..............[0.2.4]
   gulp-coffee.............[1.4.1]
   gulp-plumber............[0.5.6]
-  mocha..................[1.17.1]
+  mocha.................[1.17.1*]
 
   $ npmlist --depth=1 local
   chai....................[1.9.0]
@@ -63,6 +63,9 @@ Usage (sans color)
     orchestrator..........[0.3.3]
     ...
 ```
+
+An asterisk by a version name signifies you are using a linked version of the
+package rather than one installed from a registry.
 
 
 ## Color Customization
