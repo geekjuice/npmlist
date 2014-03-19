@@ -1,5 +1,6 @@
 ## 2014-03-18
 * Add asterisk to version when using link
+* Add persistent scope
 
 
 ## 2014-03-16

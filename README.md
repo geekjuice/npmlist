@@ -32,40 +32,52 @@ Usage (sans color)
   dispatch-proxy...........[0.1.2]
   express..................[3.4.8]
   gulp.....................[3.5.2]
-  mocha...................[1.17.1]
+  mocha..................[1.17.1*]
   nodemon.................[1.0.15]
   npm......................[1.4.4]
   yo.......................[1.1.2]
-
-  $ npmlist local
-  Installed npm packages: (local)
-
-  chai....................[1.9.0]
-  coffee-script...........[1.7.1]
-  gulp....................[3.5.2]
-  gulp-clean..............[0.2.4]
-  gulp-coffee.............[1.4.1]
-  gulp-plumber............[0.5.6]
-  mocha.................[1.17.1*]
-
-  $ npmlist --depth=1 local
-  chai....................[1.9.0]
-    assertion-error.......[1.0.0]
-    deep-eql..............[0.1.3]
-  coffee-script...........[1.7.1]
-    mkdirp................[0.3.5]
-  gulp....................[3.5.2]
-    archy.................[0.0.2]
-    deprecated............[0.0.1]
-    findup-sync...........[0.1.2]
-    gulp-util............[2.2.14]
-    minimist..............[0.0.8]
-    orchestrator..........[0.3.3]
-    ...
 ```
 
 An asterisk by a version name signifies you are using a linked version of the
 package rather than one installed from a registry.
+
+Other options include:
+
+### Help
+
+Display help message
+
+### Version
+
+Display version number
+
+### Local
+
+List local packages
+
+### Global
+
+List global packages
+
+### Colorscheme
+
+Displays current color scheme. More on color below in `Color Customization`
+
+### Depth
+
+Specify depth to display (same as `npm`'s depth)
+
+### Colors
+
+Uses colors (one-off)
+
+### Set Color
+
+Set colors for persistence i.e. default colors
+
+### Set Scope
+
+Set scope for persistence i.e. default scope
 
 
 ## Color Customization
