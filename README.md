@@ -1,5 +1,8 @@
 # npmlist
 
+[![NPM
+version](https://badge.fury.io/js/npmlist.png)](http://badge.fury.io/js/npmlist)
+
 Sugar wrapped `npm list` with optional depth
 
 Project initiated using [nblocks](https://github.com/geekjuice/nblocks)
