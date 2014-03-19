@@ -130,9 +130,10 @@ Npmlist.lineWidth = function(lines, lowerlimit) {
  */
 
 Npmlist.stripSource = function(line) {
-  var regex;
-  regex = /^(\W+[^ ]+)/;
-  return (line.match(regex))[1];
+  var match, regex;
+  regex = /^(\W+[^ ]+)(.*)/;
+  match = line.match(regex);
+  return match[1] + (match[2] ? '*' : '');
 };
 
 

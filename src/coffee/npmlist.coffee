@@ -103,8 +103,9 @@ Npmlist.lineWidth = (lines, lowerlimit) ->
 # Strip source - pkg@version (source)
 ###
 Npmlist.stripSource = (line) ->
-  regex = /^(\W+[^ ]+)/
-  (line.match regex)[1]
+  regex = /^(\W+[^ ]+)(.*)/
+  match = line.match regex
+  match[1] + (if match[2] then '*' else '')
 
 
 ###
