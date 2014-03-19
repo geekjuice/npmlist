@@ -193,7 +193,7 @@ Npmlist.npmls = (global, depth=0, colors='') ->
       # Split full npm list tree by newline and filter by depth
       list = stdout.split '\n'
       if list.filter(Npmlist.isEmpty).length
-        empty = [c[Npmlist.colors.pkg],'(empty)',reset,'\n'].join ''
+        empty = [c[Npmlist.colors.pkg],'(empty)',c.reset,'\n'].join ''
         return process.stdout.write(empty)
       lines = list.filter Npmlist.depth.bind null, depth
       lines = lines.map Npmlist.stripSource

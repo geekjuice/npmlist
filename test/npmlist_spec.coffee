@@ -46,7 +46,7 @@ describe 'npmlist', ->
 
   it '#stripSource', ->
     _.expect(_.nls.stripSource depth0).to.equal '├─┬ chai@1.9.0'
-    _.expect(_.nls.stripSource depth2).to.equal '│   └── type-detect@0.1.1'
+    _.expect(_.nls.stripSource depth2).to.equal '│   └── type-detect@0.1.1*'
 
   it '#parseResult', ->
     # NOTE: Lengths hardcoded in for simplicity
@@ -59,6 +59,7 @@ describe 'npmlist', ->
       .to.eql ['npmlist','*','',0]
 
   it '#prettify', ->
+    # NOTE: Currently fails due to Npmlist.colors
     pretty = _.nls.prettify 'chai','1.9.0',null,2
     _.expect(pretty).to.match /^[ ]{4}/
     _.expect(pretty).to.contain 'chai'

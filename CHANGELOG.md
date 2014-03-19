@@ -1,6 +1,7 @@
 ## 2014-03-18
 * Add asterisk to version when using link
 * Add persistent scope
+* Fix missing color prefix for empty packages
 
 
 ## 2014-03-16

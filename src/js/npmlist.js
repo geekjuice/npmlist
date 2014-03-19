@@ -234,7 +234,7 @@ Npmlist.npmls = function(global, depth, colors) {
       process.stdout.write(banner);
       list = stdout.split('\n');
       if (list.filter(Npmlist.isEmpty).length) {
-        empty = [c[Npmlist.colors.pkg], '(empty)', reset, '\n'].join('');
+        empty = [c[Npmlist.colors.pkg], '(empty)', c.reset, '\n'].join('');
         return process.stdout.write(empty);
       }
       lines = list.filter(Npmlist.depth.bind(null, depth));
