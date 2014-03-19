@@ -47,7 +47,7 @@ Npmlist.help = ->
     -d=n,       [--]depth=n               Traverse n levels deep
     -c=x,y,z,   [--]colors=x,y,z          Use colors specified
     -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)
-    -ss=scope   [--]setcolors=scope       Set global or local (persistent)
+    -ss=scope   [--]setscope=scope        Set global or local (persistent)
 
               """
   process.exit(1) unless isTest
