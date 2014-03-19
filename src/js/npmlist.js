@@ -36,7 +36,7 @@ isTest = global.NODE_ENV === 'test';
  */
 
 Npmlist.help = function() {
-  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  -h,         [--]help                  This message\n  -v,         [--]version               Version number\n  -l,         [--]local                 Local packages\n  -g,         [--]global                Global packages\n  -cs,        [--]colorscheme           Display current colorscheme\n  -d=n,       [--]depth=n               Traverse n levels deep\n  -c=x,y,z,   [--]colors=x,y,z          Use colors specified\n  -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)\n  -ss=scope   [--]setcolors=scope       Set global or local (persistent)\n");
+  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  -h,         [--]help                  This message\n  -v,         [--]version               Version number\n  -l,         [--]local                 Local packages\n  -g,         [--]global                Global packages\n  -cs,        [--]colorscheme           Display current colorscheme\n  -d=n,       [--]depth=n               Traverse n levels deep\n  -c=x,y,z,   [--]colors=x,y,z          Use colors specified\n  -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)\n  -ss=scope   [--]setscope=scope        Set global or local (persistent)\n");
   if (!isTest) {
     return process.exit(1);
   }
