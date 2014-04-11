@@ -1,3 +1,6 @@
+## 2014-04-11
+* Allow for package filtering (for sub-package views)
+
 ## 2014-03-18
 * Add asterisk to version when using link
 * Add persistent scope

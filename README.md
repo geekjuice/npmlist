@@ -140,8 +140,11 @@ here.
 
 ## Future Plans
 * Signify if using linked package or installed
-* Allow for package filtering (useful for > 0 depth view of a package)
+* ~~Allow for package filtering (useful for > 0 depth view of a package)~~
 * Fix `extraneous` package mark
+* Better package versioning...
+* Refactor out CLI parser (or use optimist?)
+* Clean up code
 
 
 ## Credits

@@ -45,6 +45,7 @@ Npmlist.help = ->
     -g,         [--]global                Global packages
     -cs,        [--]colorscheme           Display current colorscheme
     -d=n,       [--]depth=n               Traverse n levels deep
+    -gp=pkg,    [--]grep=pkg              Filter by (top-level) search
     -c=x,y,z,   [--]colors=x,y,z          Use colors specified
     -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)
     -ss=scope   [--]setscope=scope        Set global or local (persistent)
@@ -112,6 +113,28 @@ Npmlist.depth = (level, pkg) ->
 
 
 ###
+# Grep Packages
+###
+Npmlist.grepPackage = (lines, grep) ->
+  return lines unless grep.length
+  regex = new RegExp "#{grep}@.*", 'ig'
+  keepGathering = false
+  grepped = []
+  for line in lines
+    depth = Npmlist.depth 0, line
+    if depth
+      if regex.test line
+        grepped.push line
+        keepGathering = true
+      else
+        keepGathering = false
+    if keepGathering and not Npmlist.depth 0, line
+      grepped.push line
+  grepped
+
+
+
+###
 # Get depth
 ###
 Npmlist.getDepth = (padding) -> (padding - 4) / 2
@@ -176,9 +199,17 @@ Npmlist.logger = (length,line) ->
 
 
 ###
+# Write empty to stdout
+###
+Npmlist.logEmpty = ->
+  empty = [c[Npmlist.colors.pkg],'(empty)',c.reset,'\n'].join ''
+  return process.stdout.write(empty)
+
+
+###
 # Main npm list function
 ###
-Npmlist.npmls = (global, depth=0, colors='') ->
+Npmlist.npmls = (global, depth=0, grep='', colors='') ->
 
   runCommand = ->
     # Run npm list and parse
@@ -190,13 +221,19 @@ Npmlist.npmls = (global, depth=0, colors='') ->
       banner = ['\n',c[Npmlist.colors.banner],msg,c.reset,'\n\n'].join ''
       process.stdout.write banner
 
-      # Split full npm list tree by newline and filter by depth
+      # Split full npm list tree by newline
       list = stdout.split '\n'
-      if list.filter(Npmlist.isEmpty).length
-        empty = [c[Npmlist.colors.pkg],'(empty)',c.reset,'\n'].join ''
-        return process.stdout.write(empty)
+      Npmlist.logEmpty() if list.filter(Npmlist.isEmpty).length
+
+      # Filter by depth and name
       lines = list.filter Npmlist.depth.bind null, depth
+      lines = Npmlist.grepPackage lines, grep
       lines = lines.map Npmlist.stripSource
+
+      # Check if empty once more
+      Npmlist.logEmpty() unless lines.length
+
+      # Format and print
       width = Npmlist.lineWidth lines, width
       lines.map Npmlist.logger.bind null,width
 
@@ -232,6 +269,7 @@ Npmlist.init = ->
   setColors = ''
   getColors = false
   scope = ''
+  grep = ''
 
   # Regex
   depthRegex = /^(?:(?:--)?depth|-d)=(\d+)/
@@ -239,6 +277,7 @@ Npmlist.init = ->
   colorRegex = /^(?:(?:--)?colors|-c)=(.+)/
   setRegex = /^(?:(?:--)?setcolors|-sc)=(.+)/
   scopeRegex = /^(?:(?:--)?setscope|-ss)=(.+)/
+  grepRegex = /^(?:(?:--)?grep|-gp)=(.+)/
 
   # Parse arguments
   for arg in args
@@ -247,14 +286,16 @@ Npmlist.init = ->
     colorMatches = arg.match colorRegex
     setMatches = arg.match setRegex
     scopeMatches = arg.match scopeRegex
+    grepMatches = arg.match grepRegex
     unless flagMatches or depthMatches or colorMatches or
-      setMatches or scopeMatches
+      setMatches or scopeMatches or grepMatches
         Npmlist.unknownCommand arg
     flag = flagMatches[0] if flagMatches and flag is undefined
     depth = depthMatches[1] if depthMatches and depth is 0
     colors = colorMatches[1] if colorMatches and colors.length is 0
     setColors = setMatches[1] if setMatches and setColors.length is 0
     scope = scopeMatches[1] if scopeMatches and scope.length is 0
+    grep = grepMatches[1] if grepMatches and grep.length is 0
 
   # Set scope and return early
   if scope.length isnt 0
@@ -274,12 +315,12 @@ Npmlist.init = ->
       when "version","-v","--version"
         Npmlist.version()
       when "global","-g","--global"
-        Npmlist.npmls true, depth, colors
+        Npmlist.npmls true, depth, grep, colors
       when "local","-l","--local"
-        Npmlist.npmls false, depth, colors
+        Npmlist.npmls false, depth, grep, colors
       else
         Npmlist.getScope (global) ->
-          Npmlist.npmls global, depth, colors
+          Npmlist.npmls global, depth, grep, colors
 
 
 ###

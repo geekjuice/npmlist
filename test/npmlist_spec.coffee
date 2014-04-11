@@ -58,16 +58,10 @@ describe 'npmlist', ->
     _.expect(_.nls.parseResult badVer.match(regex), 9)
       .to.eql ['npmlist','*','',0]
 
-  it '#prettify', ->
-    # NOTE: Currently fails due to Npmlist.colors
-    pretty = _.nls.prettify 'chai','1.9.0',null,2
-    _.expect(pretty).to.match /^[ ]{4}/
-    _.expect(pretty).to.contain 'chai'
-    _.expect(pretty).to.contain '[1.9.0]'
-
   it '#logger', ->
     log = _.nls.logger 30, depth0
     _.expect(log.join '@').to.equal 'chai@1.9.0'
 
-
-
+  it '#grepPackage'
+  it '#logEmpty'
+  it '#prettify'

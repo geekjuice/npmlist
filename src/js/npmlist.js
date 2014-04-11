@@ -36,7 +36,7 @@ isTest = global.NODE_ENV === 'test';
  */
 
 Npmlist.help = function() {
-  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  -h,         [--]help                  This message\n  -v,         [--]version               Version number\n  -l,         [--]local                 Local packages\n  -g,         [--]global                Global packages\n  -cs,        [--]colorscheme           Display current colorscheme\n  -d=n,       [--]depth=n               Traverse n levels deep\n  -c=x,y,z,   [--]colors=x,y,z          Use colors specified\n  -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)\n  -ss=scope   [--]setscope=scope        Set global or local (persistent)\n");
+  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  -h,         [--]help                  This message\n  -v,         [--]version               Version number\n  -l,         [--]local                 Local packages\n  -g,         [--]global                Global packages\n  -cs,        [--]colorscheme           Display current colorscheme\n  -d=n,       [--]depth=n               Traverse n levels deep\n  -gp=pkg,    [--]grep=pkg              Filter by (top-level) search\n  -c=x,y,z,   [--]colors=x,y,z          Use colors specified\n  -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)\n  -ss=scope   [--]setscope=scope        Set global or local (persistent)\n");
   if (!isTest) {
     return process.exit(1);
   }
@@ -122,6 +122,37 @@ Npmlist.depth = function(level, pkg) {
   var regex;
   regex = new RegExp("^(.{0," + (2 * level) + "})[├└].*", 'g');
   return regex.test(pkg);
+};
+
+
+/*
+ * Grep Packages
+ */
+
+Npmlist.grepPackage = function(lines, grep) {
+  var depth, grepped, keepGathering, line, regex, _i, _len;
+  if (!grep.length) {
+    return lines;
+  }
+  regex = new RegExp("" + grep + "@.*", 'ig');
+  keepGathering = false;
+  grepped = [];
+  for (_i = 0, _len = lines.length; _i < _len; _i++) {
+    line = lines[_i];
+    depth = Npmlist.depth(0, line);
+    if (depth) {
+      if (regex.test(line)) {
+        grepped.push(line);
+        keepGathering = true;
+      } else {
+        keepGathering = false;
+      }
+    }
+    if (keepGathering && !Npmlist.depth(0, line)) {
+      grepped.push(line);
+    }
+  }
+  return grepped;
 };
 
 
@@ -214,31 +245,48 @@ Npmlist.logger = function(length, line) {
 
 
 /*
+ * Write empty to stdout
+ */
+
+Npmlist.logEmpty = function() {
+  var empty;
+  empty = [c[Npmlist.colors.pkg], '(empty)', c.reset, '\n'].join('');
+  return process.stdout.write(empty);
+};
+
+
+/*
  * Main npm list function
  */
 
-Npmlist.npmls = function(global, depth, colors) {
+Npmlist.npmls = function(global, depth, grep, colors) {
   var cmd, runCommand, scope;
   if (depth == null) {
     depth = 0;
+  }
+  if (grep == null) {
+    grep = '';
   }
   if (colors == null) {
     colors = '';
   }
   runCommand = function() {
     return exec(cmd, function(err, stdout, stderr) {
-      var banner, empty, lines, list, msg, width;
+      var banner, lines, list, msg, width;
       msg = ['Installed npm packages:', scope].join(' ');
       width = msg.length - 1;
       banner = ['\n', c[Npmlist.colors.banner], msg, c.reset, '\n\n'].join('');
       process.stdout.write(banner);
       list = stdout.split('\n');
       if (list.filter(Npmlist.isEmpty).length) {
-        empty = [c[Npmlist.colors.pkg], '(empty)', c.reset, '\n'].join('');
-        return process.stdout.write(empty);
+        Npmlist.logEmpty();
       }
       lines = list.filter(Npmlist.depth.bind(null, depth));
+      lines = Npmlist.grepPackage(lines, grep);
       lines = lines.map(Npmlist.stripSource);
+      if (!lines.length) {
+        Npmlist.logEmpty();
+      }
       width = Npmlist.lineWidth(lines, width);
       return lines.map(Npmlist.logger.bind(null, width));
     });
@@ -266,7 +314,7 @@ Npmlist.npmls = function(global, depth, colors) {
  */
 
 Npmlist.init = function() {
-  var arg, args, colorMatches, colorRegex, colors, depth, depthMatches, depthRegex, flag, flagMatches, flagRegex, getColors, scope, scopeMatches, scopeRegex, setColors, setMatches, setRegex, _i, _len;
+  var arg, args, colorMatches, colorRegex, colors, depth, depthMatches, depthRegex, flag, flagMatches, flagRegex, getColors, grep, grepMatches, grepRegex, scope, scopeMatches, scopeRegex, setColors, setMatches, setRegex, _i, _len;
   args = process.argv.slice(2);
   depth = 0;
   flag = void 0;
@@ -274,11 +322,13 @@ Npmlist.init = function() {
   setColors = '';
   getColors = false;
   scope = '';
+  grep = '';
   depthRegex = /^(?:(?:--)?depth|-d)=(\d+)/;
   flagRegex = /^(?:(?:(?:--)?(?:scope|colorscheme|global|local|version|help))|(?:-(?:s|cs|g|l|v|h)))$/g;
   colorRegex = /^(?:(?:--)?colors|-c)=(.+)/;
   setRegex = /^(?:(?:--)?setcolors|-sc)=(.+)/;
   scopeRegex = /^(?:(?:--)?setscope|-ss)=(.+)/;
+  grepRegex = /^(?:(?:--)?grep|-gp)=(.+)/;
   for (_i = 0, _len = args.length; _i < _len; _i++) {
     arg = args[_i];
     flagMatches = arg.match(flagRegex);
@@ -286,7 +336,8 @@ Npmlist.init = function() {
     colorMatches = arg.match(colorRegex);
     setMatches = arg.match(setRegex);
     scopeMatches = arg.match(scopeRegex);
-    if (!(flagMatches || depthMatches || colorMatches || setMatches || scopeMatches)) {
+    grepMatches = arg.match(grepRegex);
+    if (!(flagMatches || depthMatches || colorMatches || setMatches || scopeMatches || grepMatches)) {
       Npmlist.unknownCommand(arg);
     }
     if (flagMatches && flag === void 0) {
@@ -303,6 +354,9 @@ Npmlist.init = function() {
     }
     if (scopeMatches && scope.length === 0) {
       scope = scopeMatches[1];
+    }
+    if (grepMatches && grep.length === 0) {
+      grep = grepMatches[1];
     }
   }
   if (scope.length !== 0) {
@@ -327,14 +381,14 @@ Npmlist.init = function() {
       case "global":
       case "-g":
       case "--global":
-        return Npmlist.npmls(true, depth, colors);
+        return Npmlist.npmls(true, depth, grep, colors);
       case "local":
       case "-l":
       case "--local":
-        return Npmlist.npmls(false, depth, colors);
+        return Npmlist.npmls(false, depth, grep, colors);
       default:
         return Npmlist.getScope(function(global) {
-          return Npmlist.npmls(global, depth, colors);
+          return Npmlist.npmls(global, depth, grep, colors);
         });
     }
   }
