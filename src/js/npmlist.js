@@ -36,7 +36,7 @@ isTest = global.NODE_ENV === 'test';
  */
 
 Npmlist.help = function() {
-  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  -h,         [--]help                  This message\n  -v,         [--]version               Version number\n  -l,         [--]local                 Local packages\n  -g,         [--]global                Global packages\n  -cs,        [--]colorscheme           Display current colorscheme\n  -d=n,       [--]depth=n               Traverse n levels deep\n  -gp=pkg,    [--]grep=pkg              Filter by (top-level) search\n  -c=x,y,z,   [--]colors=x,y,z          Use colors specified\n  -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)\n  -ss=scope   [--]setscope=scope        Set global or local (persistent)\n");
+  console.log("\nUsage: npmlist [flags]\n\nFlags:\n  -h,         [--]help                  This message\n  -v,         [--]version               Version number\n  -l,         [--]local                 Local packages\n  -g,         [--]global                Global packages\n  -cs,        [--]colorscheme           Display current colorscheme\n  -d=n,       [--]depth=n               Traverse n levels deep\n  -gp=pkg,    [--]grep=pkg              Filter package (top-level)\n  -c=x,y,z,   [--]colors=x,y,z          Use colors specified\n  -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)\n  -ss=scope   [--]setscope=scope        Set global or local (persistent)\n");
   if (!isTest) {
     return process.exit(1);
   }
@@ -130,11 +130,15 @@ Npmlist.depth = function(level, pkg) {
  */
 
 Npmlist.grepPackage = function(lines, grep) {
-  var depth, grepped, keepGathering, line, regex, _i, _len;
+  var depth, fuzzy, grepped, keepGathering, line, regex, _i, _len;
   if (!grep.length) {
     return lines;
   }
-  regex = new RegExp("" + grep + "@.*", 'ig');
+  if (grep[0] === '_') {
+    grep = grep.substr(1);
+    fuzzy = true;
+  }
+  regex = new RegExp("" + grep + (fuzzy ? '' : '@.*'), 'i');
   keepGathering = false;
   grepped = [];
   for (_i = 0, _len = lines.length; _i < _len; _i++) {
@@ -282,8 +286,8 @@ Npmlist.npmls = function(global, depth, grep, colors) {
         Npmlist.logEmpty();
       }
       lines = list.filter(Npmlist.depth.bind(null, depth));
-      lines = Npmlist.grepPackage(lines, grep);
       lines = lines.map(Npmlist.stripSource);
+      lines = Npmlist.grepPackage(lines, grep);
       if (!lines.length) {
         Npmlist.logEmpty();
       }

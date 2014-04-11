@@ -45,7 +45,7 @@ Npmlist.help = ->
     -g,         [--]global                Global packages
     -cs,        [--]colorscheme           Display current colorscheme
     -d=n,       [--]depth=n               Traverse n levels deep
-    -gp=pkg,    [--]grep=pkg              Filter by (top-level) search
+    -gp=pkg,    [--]grep=pkg              Filter package (top-level)
     -c=x,y,z,   [--]colors=x,y,z          Use colors specified
     -sc=x,y,z,  [--]setcolors=x,y,z       Set colors (persistent)
     -ss=scope   [--]setscope=scope        Set global or local (persistent)
@@ -117,7 +117,10 @@ Npmlist.depth = (level, pkg) ->
 ###
 Npmlist.grepPackage = (lines, grep) ->
   return lines unless grep.length
-  regex = new RegExp "#{grep}@.*", 'ig'
+  if grep[0] is '_'
+    grep = grep.substr 1
+    fuzzy = true
+  regex = new RegExp "#{grep}#{if fuzzy then '' else '@.*'}",'i'
   keepGathering = false
   grepped = []
   for line in lines
@@ -227,8 +230,8 @@ Npmlist.npmls = (global, depth=0, grep='', colors='') ->
 
       # Filter by depth and name
       lines = list.filter Npmlist.depth.bind null, depth
-      lines = Npmlist.grepPackage lines, grep
       lines = lines.map Npmlist.stripSource
+      lines = Npmlist.grepPackage lines, grep
 
       # Check if empty once more
       Npmlist.logEmpty() unless lines.length

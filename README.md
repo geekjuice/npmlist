@@ -72,7 +72,7 @@ Specify depth to display (same as `npm`'s depth)
 
 ### Filtering
 
-Filter by package name (useful for manageable sub-package view)
+Filter by package name (prepend `_` for fuzzy match)
 
 ### Colors
 

@@ -1,5 +1,6 @@
 ## 2014-04-11
 * Allow for package filtering (for sub-package views)
+* Add option for exact or fuzzy filtering (by prepending _ in search)
 
 ## 2014-03-18
 * Add asterisk to version when using link
