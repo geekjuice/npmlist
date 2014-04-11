@@ -70,6 +70,10 @@ Displays current color scheme. More on color below in `Color Customization`
 
 Specify depth to display (same as `npm`'s depth)
 
+### Filtering
+
+Filter by package name (useful for manageable sub-package view)
+
 ### Colors
 
 Uses colors (one-off)
