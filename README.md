@@ -149,6 +149,7 @@ here.
 * Better package versioning...
 * Refactor out CLI parser (or use optimist?)
 * Clean up code
+* Possibly use `npm depth=0` now that it is fixed
 
 
 ## Credits
