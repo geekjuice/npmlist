@@ -150,6 +150,7 @@ here.
 * Refactor out CLI parser (or use optimist?)
 * Clean up code
 * Possibly use `npm depth=0` now that it is fixed
+* Fix empty module list from throwing error
 
 
 ## Credits
