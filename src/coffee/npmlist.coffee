@@ -226,7 +226,7 @@ Npmlist.npmls = (global, depth=0, grep='', colors='') ->
 
       # Split full npm list tree by newline
       list = stdout.split '\n'
-      Npmlist.logEmpty() if list.filter(Npmlist.isEmpty).length
+      return Npmlist.logEmpty() if list.filter(Npmlist.isEmpty).length
 
       # Filter by depth and name
       lines = list.filter Npmlist.depth.bind null, depth
@@ -234,7 +234,7 @@ Npmlist.npmls = (global, depth=0, grep='', colors='') ->
       lines = Npmlist.grepPackage lines, grep
 
       # Check if empty once more
-      Npmlist.logEmpty() unless lines.length
+      return Npmlist.logEmpty() unless lines.length
 
       # Format and print
       width = Npmlist.lineWidth lines, width

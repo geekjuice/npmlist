@@ -9,8 +9,9 @@ Project initiated using [nblocks](https://github.com/geekjuice/nblocks)
 
 
 # Why?
-Current npm's (v1.4.3 and v.1.4.4) list (ls) function at depth=0 is broken. Plus
-this looks aesthetically better than the original (such colors. oooohh~)
+~~Current npm's (v1.4.3 and v.1.4.4) list (ls) function at depth=0 is broken.~~
+`npm list depth=n` is now fixed, but this looks aesthetically better than the
+original (such colors. oooohh~)
 
 
 ## Usage
@@ -143,14 +144,14 @@ here.
 
 
 ## Future Plans
-* Signify if using linked package or installed
 * ~~Allow for package filtering (useful for > 0 depth view of a package)~~
+* ~~Fix empty module list from throwing error~~
+* Signify if using linked package or installed
 * Fix `extraneous` package mark
 * Better package versioning...
 * Refactor out CLI parser (or use optimist?)
 * Clean up code
 * Possibly use `npm depth=0` now that it is fixed
-* Fix empty module list from throwing error
 
 
 ## Credits

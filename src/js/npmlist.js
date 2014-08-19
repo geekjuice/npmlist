@@ -283,13 +283,13 @@ Npmlist.npmls = function(global, depth, grep, colors) {
       process.stdout.write(banner);
       list = stdout.split('\n');
       if (list.filter(Npmlist.isEmpty).length) {
-        Npmlist.logEmpty();
+        return Npmlist.logEmpty();
       }
       lines = list.filter(Npmlist.depth.bind(null, depth));
       lines = lines.map(Npmlist.stripSource);
       lines = Npmlist.grepPackage(lines, grep);
       if (!lines.length) {
-        Npmlist.logEmpty();
+        return Npmlist.logEmpty();
       }
       width = Npmlist.lineWidth(lines, width);
       return lines.map(Npmlist.logger.bind(null, width));
