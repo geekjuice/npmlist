@@ -40,7 +40,7 @@ describe 'npmlist', ->
     _.expect(_.nls.getDepth 8).to.equal 2
 
   it '#lineWidth', ->
-    lines = ['foo','bar','foobar', 'fubar']
+    lines = ['foo', 'bar', 'foobar', 'fubar']
     _.expect(_.nls.lineWidth lines, 8).to.equal 8
     _.expect(_.nls.lineWidth lines, 4).to.equal 6
 
@@ -52,11 +52,11 @@ describe 'npmlist', ->
     # NOTE: Lengths hardcoded in for simplicity
     regex = /^(\W+)([^ ]+)/
     _.expect(_.nls.parseResult depth0.match(regex), 10)
-      .to.eql ['chai','1.9.0','',0]
+      .to.eql ['chai', '1.9.0', '', 0]
     _.expect(_.nls.parseResult depth1.match(regex), 15)
-      .to.eql ['deep-eql','0.1.3','',1]
+      .to.eql ['deep-eql', '0.1.3', '', 1]
     _.expect(_.nls.parseResult badVer.match(regex), 9)
-      .to.eql ['npmlist','*','',0]
+      .to.eql ['npmlist', '*', '', 0]
 
   it '#logger', ->
     log = _.nls.logger 30, depth0
