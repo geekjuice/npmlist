@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/geekjuice/npmlist",
   "bin": "./bin/npmlist",
+  "preferGlobal": true,
+
   "dependencies": {
     "lodash": "^3.5.0"
   },
