@@ -7,6 +7,7 @@ Sugar wrapped `npm list` with optional depth
 
 Project initiated using [nblocks](https://github.com/geekjuice/nblocks)
 
+__UPDATE__: Rewrite on the way that should be MUCHHH faster...
 
 # Why?
 ~~Current npm's (v1.4.3 and v.1.4.4) list (ls) function at depth=0 is broken.~~
