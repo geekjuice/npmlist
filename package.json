@@ -31,9 +31,5 @@
     "gulp-filter": "^2.0.2",
     "gulp-plumber": "^1.0.1",
     "gulp-tag-version": "^1.2.1"
-  },
-  "engines": {
-    "node": "*",
-    "npm": "^1.4.5"
   }
 }
