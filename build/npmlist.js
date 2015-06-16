@@ -96,28 +96,33 @@ exports['default'] = {
         }
       });
 
-      pkgs.forEach(function (pkg) {
-        var spaces = pkg.spaces;
-        var name = pkg.name;
-        var version = pkg.version;
-        var pkgLength = pkg.pkgLength;
-        var linked = pkg.linked;
+      if (pkgs.length) {
+        pkgs.forEach(function (pkg) {
+          var spaces = pkg.spaces;
+          var name = pkg.name;
+          var version = pkg.version;
+          var pkgLength = pkg.pkgLength;
+          var linked = pkg.linked;
 
-        var msg = [
-        // Add depth
-        spaces,
+          var msg = [
+          // Add depth
+          spaces,
 
-        // Top-level or dependency
-        spaces ? _chalk2['default'].black(name) : _chalk2['default'].magenta(name),
+          // Top-level or dependency
+          spaces ? _chalk2['default'].black(name) : _chalk2['default'].magenta(name),
 
-        // Dotted spacing
-        _chalk2['default'].black(new Array(maxLength - pkgLength + 1 + BUFFER).join('.')),
+          // Dotted spacing
+          _chalk2['default'].black(new Array(maxLength - pkgLength + 1 + BUFFER).join('.')),
 
-        // Linked package
-        linked ? _chalk2['default'].yellow(version) : _chalk2['default'].cyan(version)].join('');
+          // Linked package
+          linked ? _chalk2['default'].yellow(version) : _chalk2['default'].cyan(version)].join('');
 
+          console.log(msg);
+        });
+      } else {
+        var msg = _chalk2['default'].magenta('No packages found.');
         console.log(msg);
-      });
+      }
     });
   }
 };

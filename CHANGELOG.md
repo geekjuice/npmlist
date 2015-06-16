@@ -1,3 +1,6 @@
+## v3.0.2
+* Display no packages found message
+
 ## v3.0.1
 * Fix 'undefined' string for scope
 
