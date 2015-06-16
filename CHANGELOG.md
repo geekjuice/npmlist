@@ -1,3 +1,14 @@
+## v3.0.0
+__Breaking changes__
+* Color options are deprecated unless requested
+* Uses fixed `npm ls --depth=0`, so broken version will not work e.g. v1.4.3 & v1.4.4
+* `setscope` is now just `scope`
+* `query` deprecated
+
+__Other updates__
+* `dev` and `prod` options added
+
+
 ## 2014-04-11
 * Allow for package filtering (for sub-package views)
 * Add option for exact or fuzzy filtering (by prepending _ in search)

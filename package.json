@@ -1,6 +1,6 @@
 {
   "name": "npmlist",
-  "version": "2.3.2",
+  "version": "3.0.0",
   "author": "Nicholas Hwang <nick.joosung.hwang@gmail.com>",
   "license": "MIT",
   "description": "Pretty npm list",
@@ -13,18 +13,27 @@
   },
   "homepage": "https://github.com/geekjuice/npmlist",
   "bin": "./bin/npmlist",
-  "dependencies": {},
+  "scripts": {
+    "start": "./bin/npmlist",
+    "watch": "gulp watch",
+    "build": "gulp build"
+  },
+  "dependencies": {
+    "chalk": "^1.0.0"
+  },
   "devDependencies": {
-    "mocha": "*",
-    "chai": "*",
-    "logtrap": "*",
-    "coffee-script": "*",
-    "gulp": "*",
-    "gulp-clean": "*",
-    "gulp-coffee": "*",
-    "gulp-plumber": "*"
+    "mocha": "^2.2.5",
+    "chai": "^3.0.0",
+    "del": "^1.2.0",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.1.0",
+    "gulp-bump": "^0.3.1",
+    "gulp-filter": "^2.0.2",
+    "gulp-plumber": "^1.0.1",
+    "gulp-tag-version": "^1.2.1"
   },
   "engines": {
-    "node": "*"
+    "node": "*",
+    "npm": "^1.4.5"
   }
 }
