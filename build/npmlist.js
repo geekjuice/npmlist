@@ -16,6 +16,8 @@ var _child_process = require('child_process');
 
 var _utils = require('./utils');
 
+var BUFFER = 4;
+
 var REGEX = {
   'package': /^([│ ]*)[└├]─+┬?\s+(.*)@(.*)$/,
   unmet: /^.*UNMET DEPENDENCY\s+(.*)$/,
@@ -30,7 +32,6 @@ function cmd(flags) {
   return ['npm ls', '--depth=' + depth, env ? '--' + env : '', scope === 'global' ? '-g' : ''].join(' ');
 }
 
-// TODO: Clean up
 exports['default'] = {
   run: function run() {
     var flags = arguments[0] === undefined ? {} : arguments[0];
@@ -41,14 +42,15 @@ exports['default'] = {
       var pkgs = [];
       var lines = (0, _utils.clean)(stdout.split('\n'));
 
-      var buffer = 4;
-      // TODO: Display dev/prod info
-      var banner = '\nInstalled npm packages: (' + flags.scope + ')\n';
+      // Banner
+      var type = flags.env ? flags.env : 'npm';
+      var banner = '\nInstalled ' + type + ' packages: (' + flags.scope + ')\n';
       console.log(_chalk2['default'].blue(banner));
 
-      var maxLength = banner.length - buffer;
+      var maxLength = banner.trim().length - BUFFER;
 
       lines.forEach(function (line) {
+        var linked = false;
         var pkgMatches = line.match(REGEX['package']);
 
         if (pkgMatches) {
@@ -63,18 +65,24 @@ exports['default'] = {
           var unmetMatches = _name.match(REGEX.unmet);
           var versionMatches = version.match(REGEX.version);
 
+          // Check for UNMET dependencies
           if (unmetMatches) {
+            linked = true;
             _name = unmetMatches[1];
             version = 'UNMET';
           }
 
+          // Check for linked packages
           if (versionMatches) {
+            linked = true;
             version = '' + versionMatches[1] + '*';
           }
 
+          // Format depth and version
           version = '[' + version + ']';
-
           var spaces = new Array(bars.length + 1).join(' ');
+
+          // Calculate longest string
           var pkgLength = spaces.length + _name.length + version.length;
           maxLength = Math.max(maxLength, pkgLength);
 
@@ -82,7 +90,8 @@ exports['default'] = {
             spaces: spaces,
             name: _name,
             version: version,
-            pkgLength: pkgLength
+            pkgLength: pkgLength,
+            linked: linked
           });
         }
       });
@@ -92,8 +101,20 @@ exports['default'] = {
         var name = pkg.name;
         var version = pkg.version;
         var pkgLength = pkg.pkgLength;
+        var linked = pkg.linked;
 
-        var msg = [spaces, spaces ? _chalk2['default'].black(name) : _chalk2['default'].magenta(name), _chalk2['default'].black(new Array(maxLength - pkgLength + 1 + buffer).join('.')), version === '[UNMET]' ? _chalk2['default'].red(version) : _chalk2['default'].cyan(version)].join('');
+        var msg = [
+        // Add depth
+        spaces,
+
+        // Top-level or dependency
+        spaces ? _chalk2['default'].black(name) : _chalk2['default'].magenta(name),
+
+        // Dotted spacing
+        _chalk2['default'].black(new Array(maxLength - pkgLength + 1 + BUFFER).join('.')),
+
+        // Linked package
+        linked ? _chalk2['default'].yellow(version) : _chalk2['default'].cyan(version)].join('');
 
         console.log(msg);
       });
