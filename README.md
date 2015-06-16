@@ -4,7 +4,7 @@
 version](https://badge.fury.io/js/npmlist.png)](http://badge.fury.io/js/npmlist)
 
 
-# Why?
+## Why?
 Originally to replace the broken `npm ls` in versions v1.4.3 and v.1.4.4.
 Now primarily for pretty colors and formatting.
 
