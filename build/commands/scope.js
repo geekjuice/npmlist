@@ -32,7 +32,8 @@ exports['default'] = {
       if (err) {
         error();
       }
-      cb(stdout.trim());
+      stdout = stdout.trim() === 'local' ? 'local' : 'global';
+      cb(stdout);
     });
   },
 
@@ -52,7 +53,6 @@ exports['default'] = {
       this.set(scope);
     } else {
       this.get(function (current) {
-        current = current === 'local' ? 'local' : 'global';
         console.log('Current scope: ' + _chalk2['default'].cyan(current));
       });
     }

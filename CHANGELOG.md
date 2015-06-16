@@ -1,3 +1,6 @@
+## v3.0.1
+* Fix 'undefined' string for scope
+
 ## v3.0.0
 __Breaking changes__
 * Color options are deprecated unless requested
