@@ -11,7 +11,6 @@ describe 'color_config', ->
     _.expect(_.conf.npmrcExists()).to.equal true
 
   it 'should duplicate array (helper)', ->
-    _.expect(_.conf.duplicate ['xx'], 2).to.eql ['xx','xx']
     _.expect(_.conf.duplicate 'x', 2).to.eql ['x','x']
 
   it 'should map downcase (helper)', ->

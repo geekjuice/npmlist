@@ -11,19 +11,16 @@ __UPDATE__: Rewrite on the way that should be MUCHHH faster...
 
 # Why?
 ~~Current npm's (v1.4.3 and v.1.4.4) list (ls) function at depth=0 is broken.~~
-`npm list depth=n` is now fixed, but this looks aesthetically better than the
-original (such colors. oooohh~)
+Historically, `npm list depth=n` was broken in npm v1.4.[3,4]. Even though it's fixed now, this is aesthetically better (such colors. oooohh~)
 
 
-## Usage
-
-Installation
+## Install
 
 ```sh
   $ npm install -g npmlist
 ```
 
-Usage (sans color)
+## Usage (sans color)
 
 ```sh
   $ npmlist
@@ -144,17 +141,6 @@ To see what colors are avaialble, check out [colors](src/coffee/color.coffee)
 here.
 
 
-## Future Plans
-* ~~Allow for package filtering (useful for > 0 depth view of a package)~~
-* ~~Fix empty module list from throwing error~~
-* Signify if using linked package or installed
-* Fix `extraneous` package mark
-* Better package versioning...
-* Refactor out CLI parser (or use optimist?)
-* Clean up code
-* Possibly use `npm depth=0` now that it is fixed
-
-
 ## Credits
 
 [nblocks](https://github.com/geekjuice/nblocks)
@@ -162,4 +148,4 @@ here.
 
 ## License
 
-Copyright &copy; Nicholas Hwang <nick.joosung.hwang@gmail.com>
+Copyright &copy; Nicholas Hwang

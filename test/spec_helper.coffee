@@ -12,9 +12,9 @@ require 'mocha'
 { stdoutTrap } = require 'logtrap'
 
 # Require module and package.json
-nls = require '../src/coffee/npmlist'
-conf = require '../src/coffee/color_conf'
-c = require '../src/coffee/color'
+nls = require '../dist/npmlist'
+conf = require '../dist/colorConf'
+c = require '../dist/color'
 pkg = require '../package.json'
 
 # Get npm full tree output as variable

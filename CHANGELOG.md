@@ -1,3 +1,6 @@
+## 2015-03-13
+* Convert code to ES6
+
 ## 2014-04-11
 * Allow for package filtering (for sub-package views)
 * Add option for exact or fuzzy filtering (by prepending _ in search)
@@ -12,7 +15,7 @@
 ## 2014-03-16
 * Major update with color options added
 * Add ability to change color of output
-  * Banner, package name, version, dots, and sub-packages
+* Banner, package name, version, dots, and sub-packages
 * Persistent colorscheme via npmrc
 
 
