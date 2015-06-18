@@ -35,9 +35,10 @@ Usage (sans color)
   yo.......................[1.1.2]
 ```
 
-An asterisk by a version name signifies you are using a linked version of the
-package rather than one installed from a registry while `UNMET` signifies
-unmet dependencies.
+### Colored version numbers
+__Yellow__: Indicates that the package is linked
+__Red__: Indicates that has an invalid version number
+
 
 ## Other options:
 

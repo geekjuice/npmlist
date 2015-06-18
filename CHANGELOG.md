@@ -1,3 +1,6 @@
+## v3.1.0
+* Use colors for linked, unmet, and invalid version/packages
+
 ## v3.0.2
 * Display no packages found message
 

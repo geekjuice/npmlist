@@ -20,6 +20,7 @@ var BUFFER = 4;
 
 var REGEX = {
   'package': /^([│ ]*)[└├]─+┬?\s+(.*)@(.*)$/,
+  invalid: /^(.*)\s+invalid$/,
   unmet: /^.*UNMET DEPENDENCY\s+(.*)$/,
   version: /^([\d.]*)(?:\s+->\s+(.*))$/
 };
@@ -30,6 +31,17 @@ function cmd(flags) {
   var scope = flags.scope;
 
   return ['npm ls', '--depth=' + depth, env ? '--' + env : '', scope === 'global' ? '-g' : ''].join(' ');
+}
+
+function log(level, msg) {
+  switch (level) {
+    case 2:
+      return _chalk2['default'].red(msg);
+    case 1:
+      return _chalk2['default'].yellow(msg);
+    default:
+      return _chalk2['default'].cyan(msg);
+  }
 }
 
 exports['default'] = {
@@ -50,7 +62,7 @@ exports['default'] = {
       var maxLength = banner.trim().length - BUFFER;
 
       lines.forEach(function (line) {
-        var linked = false;
+        var logLevel = 0;
         var pkgMatches = line.match(REGEX['package']);
 
         if (pkgMatches) {
@@ -63,19 +75,26 @@ exports['default'] = {
           var version = _pkgMatches$slice2[2];
 
           var unmetMatches = _name.match(REGEX.unmet);
+          var invalidMatches = version.match(REGEX.invalid);
           var versionMatches = version.match(REGEX.version);
+
+          // Check for invalid dependencies
+          if (invalidMatches) {
+            logLevel = 2;
+            version = invalidMatches[1];
+          }
 
           // Check for UNMET dependencies
           if (unmetMatches) {
-            linked = true;
+            logLevel = 1;
             _name = unmetMatches[1];
             version = 'UNMET';
           }
 
           // Check for linked packages
           if (versionMatches) {
-            linked = true;
-            version = '' + versionMatches[1] + '*';
+            logLevel = 1;
+            version = versionMatches[1];
           }
 
           // Format depth and version
@@ -91,7 +110,7 @@ exports['default'] = {
             name: _name,
             version: version,
             pkgLength: pkgLength,
-            linked: linked
+            logLevel: logLevel
           });
         }
       });
@@ -102,7 +121,7 @@ exports['default'] = {
           var name = pkg.name;
           var version = pkg.version;
           var pkgLength = pkg.pkgLength;
-          var linked = pkg.linked;
+          var logLevel = pkg.logLevel;
 
           var msg = [
           // Add depth
@@ -114,8 +133,8 @@ exports['default'] = {
           // Dotted spacing
           _chalk2['default'].black(new Array(maxLength - pkgLength + 1 + BUFFER).join('.')),
 
-          // Linked package
-          linked ? _chalk2['default'].yellow(version) : _chalk2['default'].cyan(version)].join('');
+          // Version
+          log(logLevel, version)].join('');
 
           console.log(msg);
         });
