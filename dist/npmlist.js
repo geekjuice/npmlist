@@ -1,25 +1,30 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _chalk = require('chalk');
-
-var _chalk2 = _interopRequireDefault(_chalk);
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
 var _child_process = require('child_process');
 
 var _utils = require('./utils');
 
-var BUFFER = 4;
+var _chalk = require('chalk');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var BUFFER = 4; /**
+                 * Copyright 2016 Nicholas Hwang
+                 * MIT Licensed
+                 *
+                 * @module npmlist.js
+                 */
 
 var REGEX = {
-  'package': /^([│ ]*)[└├+][─-]+┬?\s+(.*)@(.*)$/,
+  package: /^([│ ]*)[└├+`][─-]+┬?\s+(.*)@(.*)$/,
   invalid: /^(.*)\s+invalid$/,
   unmet: /^.*UNMET DEPENDENCY\s+(.*)$/,
   version: /^([\d.]*)(?:\s+->\s+(.*))$/
@@ -36,45 +41,47 @@ function cmd(flags) {
 function log(level, msg) {
   switch (level) {
     case 2:
-      return _chalk2['default'].red(msg);
+      return (0, _chalk.red)(msg);
     case 1:
-      return _chalk2['default'].yellow(msg);
+      return (0, _chalk.yellow)(msg);
     default:
-      return _chalk2['default'].cyan(msg);
+      return (0, _chalk.cyan)(msg);
   }
 }
 
-exports['default'] = {
+exports.default = {
   run: function run() {
     var flags = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-    (0, _child_process.exec)(cmd(flags), function (err, stdout, stderr) {
-      if (err) {}
-
+    (0, _child_process.exec)(cmd(flags), function (err, stdout) {
       var pkgs = [];
       var lines = (0, _utils.clean)(stdout.split('\n'));
 
       // Banner
       var type = flags.env ? flags.env : 'npm';
       var banner = '\nInstalled ' + type + ' packages: (' + flags.scope + ')\n';
-      console.log(_chalk2['default'].blue(banner));
+      console.log((0, _chalk.blue)(banner));
 
       var maxLength = banner.trim().length - BUFFER;
 
       lines.forEach(function (line) {
         var logLevel = 0;
-        var pkgMatches = line.match(REGEX['package']);
+        var pkgMatches = line.match(REGEX.package);
 
         if (pkgMatches) {
-          var _pkgMatches$slice = pkgMatches.slice(1);
+          var matches = pkgMatches.slice(1);
 
-          var _pkgMatches$slice2 = _slicedToArray(_pkgMatches$slice, 3);
+          var _matches = (0, _slicedToArray3.default)(matches, 1);
 
-          var bars = _pkgMatches$slice2[0];
-          var _name = _pkgMatches$slice2[1];
-          var version = _pkgMatches$slice2[2];
+          var bars = _matches[0];
 
-          var unmetMatches = _name.match(REGEX.unmet);
+          var _matches2 = (0, _slicedToArray3.default)(matches, 3);
+
+          var name = _matches2[1];
+          var version = _matches2[2];
+
+
+          var unmetMatches = name.match(REGEX.unmet);
           var invalidMatches = version.match(REGEX.invalid);
           var versionMatches = version.match(REGEX.version);
 
@@ -87,7 +94,7 @@ exports['default'] = {
           // Check for UNMET dependencies
           if (unmetMatches) {
             logLevel = 1;
-            _name = unmetMatches[1];
+            name = unmetMatches[1];
             version = 'UNMET';
           }
 
@@ -102,12 +109,12 @@ exports['default'] = {
           var spaces = new Array(bars.length + 1).join(' ');
 
           // Calculate longest string
-          var pkgLength = spaces.length + _name.length + version.length;
+          var pkgLength = spaces.length + name.length + version.length;
           maxLength = Math.max(maxLength, pkgLength);
 
           pkgs.push({
             spaces: spaces,
-            name: _name,
+            name: name,
             version: version,
             pkgLength: pkgLength,
             logLevel: logLevel
@@ -128,10 +135,10 @@ exports['default'] = {
           spaces,
 
           // Top-level or dependency
-          spaces ? _chalk2['default'].black(name) : _chalk2['default'].magenta(name),
+          spaces ? (0, _chalk.black)(name) : (0, _chalk.magenta)(name),
 
           // Dotted spacing
-          _chalk2['default'].black(new Array(maxLength - pkgLength + 1 + BUFFER).join('.')),
+          (0, _chalk.black)(new Array(maxLength - pkgLength + 1 + BUFFER).join('.')),
 
           // Version
           log(logLevel, version)].join('');
@@ -139,10 +146,9 @@ exports['default'] = {
           console.log(msg);
         });
       } else {
-        var msg = _chalk2['default'].magenta('No packages found.');
+        var msg = (0, _chalk.magenta)('No packages found.');
         console.log(msg);
       }
     });
   }
 };
-module.exports = exports['default'];

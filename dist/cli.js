@@ -1,8 +1,8 @@
 'use strict';
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
 var _commands = require('./commands');
 
@@ -12,7 +12,16 @@ var _npmlist = require('./npmlist');
 
 var _npmlist2 = _interopRequireDefault(_npmlist);
 
-var args = process.argv.slice(2);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * Copyright 2016 Nicholas Hwang
+ * MIT Licensed
+ *
+ * @module cli.js
+ */
+
+var ARGS = process.argv.slice(2);
 
 var REGEX = {
   help: /^(?:(?:--)?help|-h)$/,
@@ -32,23 +41,23 @@ var flags = {
 
 var executed = false;
 
-args.forEach(function (arg) {
+ARGS.forEach(function (arg) {
   var invalid = true;
 
   for (var option in REGEX) {
-    if (({}).hasOwnProperty.call(REGEX, option)) {
+    if ({}.hasOwnProperty.call(REGEX, option)) {
       var matches = arg.match(REGEX[option]);
       if (matches) {
         invalid = false;
 
         var _matches$slice = matches.slice(1);
 
-        var _matches$slice2 = _slicedToArray(_matches$slice, 1);
+        var _matches$slice2 = (0, _slicedToArray3.default)(_matches$slice, 1);
 
         var value = _matches$slice2[0];
 
-        if (_commands2['default'][option]) {
-          _commands2['default'][option].run(value);
+        if (_commands2.default[option]) {
+          _commands2.default[option].run(value);
           executed = true;
         } else {
           flags[option] = value || option;
@@ -58,12 +67,12 @@ args.forEach(function (arg) {
   }
 
   if (invalid) {
-    _commands2['default'].unknown.run(arg);
+    _commands2.default.unknown.run(arg);
   }
 });
 
 if (!executed) {
-  _commands2['default'].scope.get(function (current) {
+  _commands2.default.scope.get(function (current) {
     var global = flags.global;
     var local = flags.local;
     var dev = flags.dev;
@@ -72,6 +81,6 @@ if (!executed) {
 
     flags.scope = global || local || current || scope;
     flags.env = prod || dev;
-    _npmlist2['default'].run(flags);
+    _npmlist2.default.run(flags);
   });
 }
