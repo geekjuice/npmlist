@@ -36,7 +36,9 @@ Usage (sans color)
 ```
 
 ### Colored version numbers
+
 __Yellow__: Indicates that the package is linked
+
 __Red__: Indicates that has an invalid version number
 
 
