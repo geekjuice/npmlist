@@ -1,3 +1,6 @@
+## v3.1.2
+* Add support for non-fancy tree structure
+
 ## v3.1.0
 * Use colors for linked, unmet, and invalid version/packages
 

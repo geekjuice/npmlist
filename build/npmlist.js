@@ -19,7 +19,7 @@ var _utils = require('./utils');
 var BUFFER = 4;
 
 var REGEX = {
-  'package': /^([│ ]*)[└├+][─-]+┬?\s+(.*)@(.*)$/,
+  'package': /^([│ ]*)[└├+`][─-]+┬?\s+(.*)@(.*)$/,
   invalid: /^(.*)\s+invalid$/,
   unmet: /^.*UNMET DEPENDENCY\s+(.*)$/,
   version: /^([\d.]*)(?:\s+->\s+(.*))$/
